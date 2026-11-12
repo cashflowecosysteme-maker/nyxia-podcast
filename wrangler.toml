@@ -1,0 +1,41 @@
+name = "podcast"
+main = "_worker.js"
+compatibility_date = "2026-09-27"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = false
+preview_urls = false
+keep_vars = true
+
+[assets]
+directory = "."
+binding = "ASSETS"
+run_worker_first = ["/", "/index", "/index.html"]
+
+[[routes]]
+pattern = "podcast.nyxia.top"
+zone_name = "nyxia.top"
+custom_domain = true
+
+[[kv_namespaces]]
+binding = "CASHFLOW_KV"
+id = "106db6da016d49d2b480452f19bad695"
+
+[[kv_namespaces]]
+binding = "SPIRITUEL_KV"
+id = "3e730b1c49f94e32a97cceff3b60a773"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "nyxia-cercles-db"
+database_id = "a21fd813-06fa-41f1-b744-07bf1c5c7951"
+
+[[vectorize]]
+binding = "VECTORIZE_INDEX"
+index_name = "univers-livres"
+
+[ai]
+binding = "AI"
+
+[vars]
+SITE_URL = "https://podcast.nyxia.top/"
+PORTAIL = "nyxia-podcast"

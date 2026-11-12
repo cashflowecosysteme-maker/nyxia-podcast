@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="/images/FavIcon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NyXia_Podcast — Connexion</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+
+  <canvas id="starry-canvas"></canvas>
+
+  <div class="login-wrap">
+    <div class="login-card">
+
+      <!-- HEADER -->
+      <div class="login-header">
+        <img src="https://d1yei2z3i6k35z.cloudfront.net/1872133/6af609e6130363.54967709_Nolan_base.png" alt="podcast" class="login-avatar">
+        <div class="login-title">podcast</div>
+        <div class="login-subtitle">Connecte-toi pour retrouver podcast</div>
+      </div>
+
+      <!-- FORM -->
+      <form id="login-form" onsubmit="return false">
+
+        <div class="form-group">
+          <label class="form-label" for="firstname">Ton prénom</label>
+          <input class="form-input" type="text" id="firstname" name="given-name" autocomplete="given-name" placeholder="Ex : Sophie, Marc, Julie...">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Adresse email</label>
+          <input class="form-input" type="email" id="email" placeholder="ton@email.com" autocomplete="email" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Mot de passe</label>
+          <div class="input-wrap">
+            <input class="form-input" type="password" id="password" placeholder="••••••••" autocomplete="current-password" required style="padding-right:44px">
+            <button type="button" class="toggle-pw" id="toggle-pw" onclick="togglePw()" title="Afficher/masquer">👁</button>
+          </div>
+        </div>
+
+        <button class="btn-login" id="btn-login" onclick="doLogin()">
+          <div class="spinner" id="spinner"></div>
+          <span id="btn-text">Se connecter</span>
+        </button>
+
+        <div class="msg-box" id="msg-box"></div>
+
+      </form>
+
+      <div class="login-footer"><a href="/mot-de-passe-oublie.html">Mot de passe oublié ?</a></div>
+      <!-- FOOTER -->
+      <div class="login-footer">
+        <a href="/">Découvrir le portail Devenir Écrivain</a><br>
+        <span style="opacity:0.5">© 2026 NyXia — NyXia_Podcast</span>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/js/starry-bg.js" defer></script>
+
+  <script src="/js/login.js"></script>
+
+</body>
+</html>

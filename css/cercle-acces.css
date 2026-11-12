@@ -1,0 +1,10 @@
+/* Cercle : défilement assorti au menu et accès demandé. */
+html,body,.detail-card{scrollbar-width:thin!important;scrollbar-color:rgba(123,92,255,.25) transparent!important}
+html::-webkit-scrollbar,body::-webkit-scrollbar,.detail-card::-webkit-scrollbar{width:6px;height:6px}
+html::-webkit-scrollbar-track,body::-webkit-scrollbar-track,.detail-card::-webkit-scrollbar-track{background:transparent}
+html::-webkit-scrollbar-thumb,body::-webkit-scrollbar-thumb,.detail-card::-webkit-scrollbar-thumb{background:rgba(123,92,255,.25);border-radius:10px}
+html::-webkit-scrollbar-thumb:hover,body::-webkit-scrollbar-thumb:hover,.detail-card::-webkit-scrollbar-thumb:hover{background:rgba(123,92,255,.45)}
+html::-webkit-scrollbar-corner,body::-webkit-scrollbar-corner,.detail-card::-webkit-scrollbar-corner{background:transparent}
+.cercle-callout a.cercle-access{background:linear-gradient(135deg,#F4C842,#E7AC08);border:1px solid #F4C842;color:#0A1628;font-weight:400;text-decoration:none;cursor:pointer;opacity:1}
+.cercle-callout a.cercle-access:hover{background:#ffdb66;box-shadow:0 0 15px rgba(244,200,66,.18)}
+.cercle-callout a.cercle-access:focus-visible{outline:2px solid #F4C842;outline-offset:4px}

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/images/FavIcon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/univers-pages.css">
+  <title>Mon Parcours · NyXia</title>
+</head>
+<body>
+  <canvas id="starry-canvas" aria-hidden="true"></canvas>
+  <main class="page">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">🌌 Mon Univers NyXia</p>
+        <h1>Mon Parcours</h1>
+        <p>Retrouve d’abord tes formations et ta progression dans ce portail. Plus bas, tu peux aussi découvrir les autres expériences publiées dans la Boutique NyXia.</p>
+      </div>
+      <div class="hero-orb" aria-hidden="true">🌌</div>
+    </section>
+
+    <section class="formation-zone" aria-labelledby="formations-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">🎓 Formation Vivante</p>
+          <h2 id="formations-title">Mes formations dans ce portail</h2>
+        </div>
+      </div>
+      <div id="formation-trainers" class="formation-trainers" aria-live="polite">
+        <div class="loading">Ton parcours de formation apparaît…</div>
+      </div>
+    </section>
+
+    <div class="toolbar boutique-toolbar">
+      <div>
+        <p class="eyebrow">✨ Pour aller plus loin</p>
+        <h2>À découvrir dans la Boutique NyXia</h2>
+      </div>
+      <input class="search" id="search" type="search" placeholder="Rechercher une formation, un outil, un univers…">
+    </div>
+
+    <section class="grid" id="cards" aria-live="polite">
+      <div class="loading">Les portes de ton univers apparaissent…</div>
+    </section>
+  </main>
+
+  <div class="detail" id="detail" role="dialog" aria-modal="true" aria-label="Détail">
+    <div class="detail-card">
+      <div class="detail-head"><div><p class="eyebrow" id="detail-meta"></p><h2 id="detail-title" style="margin:0"></h2></div><button class="close" id="detail-close" aria-label="Fermer">×</button></div>
+      <img class="detail-image" id="detail-image" alt="" hidden>
+      <div class="detail-text" id="detail-text"></div>
+      <div class="actions" id="detail-actions"></div>
+    </div>
+  </div>
+
+  <script src="/js/starry-bg.js" defer></script>
+  <script src="/js/mon-parcours.js" defer></script>
+</body>
+</html>

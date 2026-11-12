@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="/images/FavIcon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NyXia — NyXia_Podcast</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/chat.css">
+</head>
+<body>
+  <canvas id="starry-canvas"></canvas>
+
+  <div class="chat-area">
+    <div class="chat-header">
+      <span id="chat-header-avatar"><img src="https://d1yei2z3i6k35z.cloudfront.net/1872133/6ab6894dc95332.12543838_NyXia.png" alt="NyXia"></span>
+      <div class="chat-header-info">
+        <div class="chat-header-name" id="chat-header-name">NyXia</div>
+        <div class="chat-header-sub" id="chat-header-sub">Assistante technologique</div>
+      </div>
+      <button type="button" class="btn-new-chat" id="btn-welcome-video" onclick="rejouerVideoAccueil()" title="Revoir la vidéo d'accueil">🎬 Vidéo</button>
+      <button type="button" class="btn-new-chat" onclick="nouveauChat()" title="Effacer cette conversation">✨ Nouveau chat</button>
+    </div>
+
+    <div class="chat-messages active-chat" id="chat-messages-nyxia"></div>
+    <div id="formation-launch-wrap" style="display:none;padding:0 24px 12px;flex-shrink:0">
+      <button type="button" class="fo-launch" id="formation-launch-btn" onclick="launchLivingFormation()">📖 Commencer la formation</button>
+    </div>
+    <div class="suggestions" id="suggestions"></div>
+
+    <div id="attach-bar" style="display:none;padding:6px 20px;background:rgba(123,92,255,0.08);border-top:1px solid rgba(123,92,255,0.1);align-items:center;gap:8px;flex-shrink:0;font-size:12px;color:var(--t3)">
+      <span id="attach-name"></span>
+      <button id="btn-clear-attach" style="background:none;border:none;color:var(--t4);cursor:pointer;font-size:14px">✕</button>
+    </div>
+
+    <div class="chat-input-wrap">
+      <label title="PDF, image ou ZIP" style="flex-shrink:0;width:36px;height:36px;border-radius:9px;border:1px solid rgba(123,92,255,0.2);background:rgba(123,92,255,0.06);color:var(--t3);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px">
+        📎<input type="file" id="chat-file" accept=".pdf,.zip,image/*" style="display:none">
+      </label>
+      <button id="btn-mic" onclick="toggleMic()" title="Parler" style="flex-shrink:0;width:36px;height:36px;border-radius:9px;border:1px solid rgba(123,92,255,0.2);background:rgba(123,92,255,0.06);color:var(--t3);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px">🎤</button>
+      <button type="button" class="btn-image" id="btn-image" onclick="triggerImageMode()" title="Créer une image">🎨</button>
+      <textarea class="chat-input" id="chat-input" placeholder="Écris, parle ou demande une image à NyXia..." rows="1"></textarea>
+      <button class="btn-send" id="btn-send" onclick="sendMessage()">➤</button>
+    </div>
+    <div class="chat-hint">Entrée pour envoyer · Shift+Entrée pour un retour à la ligne</div>
+  </div>
+
+  <script src="/js/starry-bg.js" defer></script>
+  <script src="/js/chat-nyxia.js"></script>
+</body>
+</html>

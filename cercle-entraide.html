@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/images/FavIcon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/univers-pages.css">
+  <title>Cercle d'entraide · NyXia</title>
+  <link rel="stylesheet" href="/css/cercle-acces.css?v=20261017-2342">
+</head>
+<body>
+  <canvas id="starry-canvas" aria-hidden="true"></canvas>
+  <main class="page">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">💜 Cercle NyXia</p>
+        <h1>Cercle d'entraide</h1>
+        <p>Partager, recommander et prospérer ensemble. Explore ici les produits actifs du Répertoire NyXia et découvre ce que tu peux soutenir, recommander ou promouvoir sans quitter ton espace NyXia.</p>
+      </div>
+      <div class="hero-orb" aria-hidden="true">💜</div>
+    </section>
+
+    <div class="cercle-callout">
+      <div><strong>Le Répertoire vit à l’intérieur de ton univers.</strong><span>Tu peux consulter les offres ici; les actions d’inscription ou de promotion restent reliées au Cercle NyXia.</span></div>
+      <a class="btn cercle-access" href="https://promoteurs.nyxia.top/cercle-entraide" target="_self">Partager · Recommander · Prospérer</a>
+    </div>
+
+    <div class="toolbar">
+      <h2>Les produits du Cercle</h2>
+      <input class="search" id="search" type="search" placeholder="Rechercher dans le Cercle…">
+    </div>
+
+    <section class="grid" id="cards" aria-live="polite">
+      <div class="loading">Le Cercle se rassemble…</div>
+    </section>
+  </main>
+
+  <div class="detail" id="detail" role="dialog" aria-modal="true" aria-label="Détail">
+    <div class="detail-card">
+      <div class="detail-head"><div><p class="eyebrow">💜 Produit du Cercle</p><h2 id="detail-title" style="margin:0"></h2></div><button class="close" id="detail-close" aria-label="Fermer">×</button></div>
+      <img class="detail-image" id="detail-image" alt="" hidden>
+      <div class="detail-text" id="detail-text"></div>
+      <div class="notice">💜 REJOINS IMMÉDIATEMENT LE CERCLE D’ENTRAIDE !</div>
+      <div class="actions" id="detail-actions"></div>
+    </div>
+  </div>
+
+  <script src="/js/starry-bg.js" defer></script>
+  <script src="/js/cercle-entraide.js" defer></script>
+</body>
+</html>

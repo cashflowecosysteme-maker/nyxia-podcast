@@ -63,6 +63,7 @@
           <span id="unread-badge" style="display:none;margin-left:auto;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#ff4b6e;color:#fff;font-size:11px;font-weight:700;line-height:20px;text-align:center"></span>
           <span class="nav-arrow">›</span>
         </div>
+        <div class="nav-item" id="nav-podcasts" onclick="openUniversePage('podcasts')"><span class="nav-icon">🎙️</span> Mes Podcasts <span class="nav-arrow">›</span></div>
         <div class="nav-item" id="nav-medias" onclick="openUniversePage('medias')">
           <span class="nav-icon">✨</span> Banque d'images - Sons et Vidéos <span class="nav-arrow">›</span>
         </div>
@@ -120,6 +121,7 @@
       </div>
       <div class="panel" id="panel-medias" style="flex-direction:column"><iframe id="medias-iframe" src="about:blank" style="width:100%;height:100%;border:none;display:block" title="Média"></iframe></div>
 
+      <div class="panel" id="panel-podcasts" style="flex-direction:column"><iframe id="podcasts-iframe" src="about:blank" style="width:100%;height:100%;border:none;display:block" title="Mes Podcasts"></iframe></div>
       <!-- 🌌 Mon Parcours — page NyXia interne chargée en iframe -->
       <div class="panel" id="panel-parcours" style="flex-direction:column">
         <iframe id="parcours-iframe" src="about:blank" style="width:100%;height:100%;border:none;display:block" title="Mon Parcours"></iframe>

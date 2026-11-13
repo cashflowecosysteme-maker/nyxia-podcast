@@ -265,11 +265,12 @@ var PORTAL_AGENT_META = {"diane":{"key":"diane","name":"Diane","sub":"Créatrice
       closeMobileMenu()
     }
 
+    window.addEventListener('message',function(e){var f=document.getElementById('podcasts-iframe');if(e.origin===location.origin&&f&&e.source===f.contentWindow&&e.data?.type==='nyxia_nolan_open')openAgentTab('nolan')})
     function openUniversePage(name) {
       showPanel(name)
       var iframe = document.getElementById(name + '-iframe')
       if (!iframe) return
-      var page = name === 'medias' ? '/media.html' : name === 'parcours' ? '/mon-parcours.html' : '/cercle-entraide.html'
+      var page = name === 'medias' ? '/media.html' : name === 'podcasts' ? '/mes-podcasts.html' : name === 'parcours' ? '/mon-parcours.html' : '/cercle-entraide.html'
       if (iframe.getAttribute('data-loaded') !== '1') {
         iframe.setAttribute('data-loaded', '1')
         iframe.src = page

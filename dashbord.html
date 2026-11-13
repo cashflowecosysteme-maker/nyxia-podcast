@@ -46,11 +46,11 @@
         <div class="nav-dropdown" id="portal-workshop">
           <button type="button" class="nav-dropdown-trigger" id="portal-workshop-trigger" onclick="togglePortalWorkshop()" aria-expanded="false" aria-controls="portal-workshop-menu">
             <span aria-hidden="true">✨</span>
-            <span class="nav-dropdown-title">Atelier</span>
+            <span class="nav-dropdown-title">Studio</span>
             <span class="nav-dropdown-chevron" aria-hidden="true">⌄</span>
           </button>
           <div class="nav-dropdown-menu" id="portal-workshop-menu">
-            
+            <button type="button" onclick="openPodcastStudio()" style="display:block;width:100%;text-align:left;padding:12px 16px;background:#101a32;border:1px solid #C9A24A66;border-radius:10px;color:#fff;cursor:pointer;font:inherit">🎬 Ouvrir le Studio Podcast</button>
           </div>
         </div>
       </div>
@@ -121,6 +121,7 @@
       </div>
       <div class="panel" id="panel-medias" style="flex-direction:column"><iframe id="medias-iframe" src="about:blank" style="width:100%;height:100%;border:none;display:block" title="Média"></iframe></div>
 
+      <div class="panel" id="panel-studio" style="flex-direction:column"><iframe id="studio-iframe" src="about:blank" style="width:100%;height:100%;border:none;display:block" title="Studio Podcast"></iframe></div>
       <div class="panel" id="panel-podcasts" style="flex-direction:column"><iframe id="podcasts-iframe" src="about:blank" style="width:100%;height:100%;border:none;display:block" title="Mes Podcasts"></iframe></div>
       <!-- 🌌 Mon Parcours — page NyXia interne chargée en iframe -->
       <div class="panel" id="panel-parcours" style="flex-direction:column">

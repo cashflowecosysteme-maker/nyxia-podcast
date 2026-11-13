@@ -935,3 +935,11 @@ var PORTAL_AGENT_META = {"diane":{"key":"diane","name":"Diane","sub":"Créatrice
   var chat=document.getElementById('agent-iframe');if(chat&&chat.contentWindow)try{chat.contentWindow.postMessage(payload,location.origin)}catch(_){}
  },true)
 })();
+
+/* Studio Podcast — sous les personnages, même interface Dashboard. */
+function openPodcastStudio(){
+  showPanel("studio");
+  var f=document.getElementById("studio-iframe");
+  if(f&&f.getAttribute("data-loaded")!=="1"){f.setAttribute("data-loaded","1");f.src="/studio-podcast.html";}
+  if(typeof setPortalWorkshopOpen==="function")setPortalWorkshopOpen(false);
+}

@@ -950,7 +950,11 @@ function openPodcastStudio(){
   showPanel("studio");
   var f=document.getElementById("studio-iframe");
   if(f&&f.getAttribute("data-loaded")!=="1"){f.setAttribute("data-loaded","1");f.src="/studio-podcast.html";}
-  if(typeof setPortalWorkshopOpen==="function")setPortalWorkshopOpen(false);
+  /* Conserver le sous-menu Studio visible après ouverture, comme Mes Podcasts. */
+  var studioMenu=document.getElementById("portal-workshop");
+  var studioTrigger=document.getElementById("portal-workshop-trigger");
+  if(studioMenu)studioMenu.classList.add("open");
+  if(studioTrigger)studioTrigger.setAttribute("aria-expanded","true");
 }
 
 /* Sous-menu Mes Podcasts : accès direct et visible à l'Agenda Éditorial. */

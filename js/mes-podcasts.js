@@ -10,3 +10,27 @@ $('toggle-manual-editor').onclick=()=>{let el=$('manual-documents');el.classList
 document.querySelectorAll('[data-guide-doc]').forEach(b=>b.onclick=async()=>{if(!active||!safeChange())return;let t=b.dataset.guideDoc;$('doc-type').value=t;$('manual-documents').classList.remove('hidden');$('toggle-manual-editor').setAttribute('aria-expanded','true');$('toggle-manual-editor').textContent='Masquer l\'éditeur de documents';await loadDoc();$('manual-documents').scrollIntoView({behavior:'smooth',block:'start'})});
 async function refreshGuide(){if(!active)return;let id=active.id;await Promise.all(['masterprompt','persona','epoc','brandbook'].map(async t=>{try{let d=await request('/'+id+'/documents/'+t);if(active?.id!==id)return;let doc=d.document||{};let s=$('guide-status-'+t);if(s)s.textContent=(doc.content||'').trim()?(doc.status==='valide'?'✓ Validé':'En cours · version '+(doc.version||1)):'À préparer'}catch(_){let s=$('guide-status-'+t);if(s)s.textContent='Non disponible'}}))}
 $('nolan').onclick=()=>{if(!safeChange())return;if(parent!==window)parent.postMessage({type:'nyxia_nolan_open'},location.origin);else location.href='/chat-nolan.html'};window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});list()})();
+/* Dashboard -> parcours choisi : ouvre la section pertinente après sélection du podcast. */
+(function(){
+ var target='';
+ function reveal(){
+  var guide=document.getElementById('guided-workspace');
+  var heading=target==='diane'?document.getElementById('diane-podcast-tools'):guide;
+  if(guide&&!guide.classList.contains('hidden')&&heading){
+    heading.scrollIntoView({behavior:'smooth',block:'start'});
+    target='';
+  }else if(target){
+    var projects=document.getElementById('projects');
+    if(projects)projects.scrollIntoView({behavior:'smooth',block:'start'});
+    var notice=document.getElementById('notice');
+    if(notice)notice.textContent='Choisis d’abord ton podcast : son parcours s’affichera ensuite.';
+  }
+ }
+ window.addEventListener('message',function(e){
+  if(e.origin!==location.origin||e.source!==parent||!e.data||e.data.type!=='nyxia_podcast_guidance')return;
+  if(e.data.section!=='nolan'&&e.data.section!=='diane')return;
+  target=e.data.section;reveal();
+ });
+ var projects=document.getElementById('projects');
+ if(projects)new MutationObserver(function(){if(target)reveal()}).observe(projects,{childList:true,subtree:true});
+})();

@@ -1011,3 +1011,14 @@ window.addEventListener('message',function(e){
  openAgentTab('nyxia');
  var frame=document.getElementById('agent-iframe');if(frame&&frame.contentWindow)frame.contentWindow.postMessage({type:'nyxia_logistique_open'},location.origin);
 });
+
+/* Navigation explicite vers les parcours existants — sans nouveau chat ni bouton. */
+window.openPodcastGuidance=function(section){
+  if(section!=='nolan'&&section!=='diane')return;
+  openPodcastSubmenu('podcasts');
+  var f=document.getElementById('podcasts-iframe');
+  if(!f)return;
+  function send(){if(f.contentWindow)f.contentWindow.postMessage({type:'nyxia_podcast_guidance',section:section},location.origin)}
+  f.addEventListener('load',send,{once:true});
+  send();
+};

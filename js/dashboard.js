@@ -273,6 +273,15 @@ var PORTAL_AGENT_META = {"diane":{"key":"diane","name":"Diane","sub":"Créatrice
       var isNolan=Array.from(document.querySelectorAll('iframe')).some(function(f){
         return f.contentWindow===e.source && /chat-nolan\.html/.test(f.getAttribute('src')||'');
       });
+      if(e.data.type==='nyxia_diane_tool_open'&&isPodcast){
+        var d=e.data;
+        if(!['adn','recit','lancement'].includes(d.tool)||!/^[a-f0-9-]{36}$/.test(d.projectId||''))return;
+        sessionStorage.setItem('nyxia:diane:pending',JSON.stringify({tool:d.tool,projectId:d.projectId,projectTitle:String(d.projectTitle||'').slice(0,120)}));
+        openAgentTab('diane');
+        var frame=document.getElementById('agent-iframe');
+        if(frame&&frame.contentWindow)frame.contentWindow.postMessage({type:'nyxia_diane_tool_open'},location.origin);
+        return;
+      }
       if(e.data.type==='nyxia_nolan_open'&&isPodcast){openAgentTab('nolan');return;}
       if(e.data.type==='nyxia_podcasts_open'&&isNolan){openUniversePage('podcasts');return;}
     })

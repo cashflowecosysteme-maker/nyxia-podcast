@@ -941,7 +941,8 @@ function openPodcastStudio(){
   showPanel("studio");
   var f=document.getElementById("studio-iframe");
   if(f&&f.getAttribute("data-loaded")!=="1"){f.setAttribute("data-loaded","1");f.src="/studio-podcast.html";}
-  if(typeof setPortalWorkshopOpen==="function")setPortalWorkshopOpen(false);
+  // Conserver le menu Studio ouvert après sélection de son contenu.
+  if(typeof setPortalWorkshopOpen==="function")setPortalWorkshopOpen(true);
 }
 
 /* Sous-menu Mes Podcasts : accès direct et visible à l'Agenda Éditorial. */

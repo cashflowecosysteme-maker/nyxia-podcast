@@ -1,3 +1,4 @@
+import { handleEditorial } from './js/editorial-api.js';
 import { handleNolanProjects } from './js/nolan-projects.js';
 function nxModuleHeading(m,index){const title=String(m?.titre||'');const mode=m?.prefixMode||'none';const prefix=mode==='none'?'':mode==='custom'?String(m?.prefixText||''):'Module '+(m?.numero||index+1)+' ·';return[prefix,title].filter(Boolean).join(' ')}
 import { handleOvilusPremium } from './ovilus/engine.js';
@@ -709,6 +710,14 @@ const nyxBookingOriginalWorker = {
 export default {
   ...nyxBookingOriginalWorker,
   async fetch(request,env,ctx){
+    // Agenda éditorial : session et propriété du podcast vérifiées côté serveur.
+    if(new URL(request.url).pathname.startsWith('/api/editorial/')){
+      const response=await handleEditorial(request,env,async token=>{
+        const r=await nxOriginalWorker.fetch(new Request(new URL('/api/check-auth',request.url),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token})}),env,ctx);
+        if(!r.ok)return {valid:false};return r.json();
+      });
+      if(response)return response;
+    }
     // Nolan : routes de mémoire multipodcasts (indépendantes de la Formation Vivante).
     if(new URL(request.url).pathname.startsWith('/api/nolan/projects')){
       const nolanResponse=await handleNolanProjects(request,env,async token=>{

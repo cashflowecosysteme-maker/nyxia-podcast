@@ -991,3 +991,23 @@ window.openEricPodcastTool=function(key){
   frame.src='/chat-eric.html?t='+encodeURIComponent(tok)+'&outil='+encodeURIComponent(key);
 };
 window.returnToEricCalendar=function(){openPodcastSubmenu('agenda');};
+
+/* Bibliothèque logistique — panneau natif, navigation Studio préservée. */
+function openNyxiaLogistique(){
+ showPanel('logistique');
+ var frame=document.getElementById('logistique-iframe');
+ if(frame&&frame.getAttribute('data-loaded')!=='1'){frame.setAttribute('data-loaded','1');frame.src='/bibliotheque-logistique.html';}
+ var menu=document.getElementById('portal-workshop');if(menu)menu.classList.add('open');
+ var trigger=document.getElementById('portal-workshop-trigger');if(trigger)trigger.setAttribute('aria-expanded','true');
+}
+window.addEventListener('message',function(e){
+ if(e.origin!==location.origin||!e.data||e.data.type!=='nyxia_logistique_discuss')return;
+ var source=document.getElementById('logistique-iframe');if(!source||e.source!==source.contentWindow)return;
+ var name=String(e.data.name||'');
+ var catalog=['Audacity','REAPER','OBS Studio','StreamYard','Zencastr','Riverside','Zoom','Google Meet','DaVinci Resolve','CapCut Desktop','GarageBand','Adobe Podcast','Auphonic','Subtitle Edit','Subtitld','YouTube Studio','MacWhisper','Descript','CuePrompter','BIGVU','Teleprompter Mirror','Spotify for Creators','YouTube','Acast','Buzzsprout','Podbean','Canva','Banque d’images et de sons NyXia','Headliner','WeTransfer','LocalSend','HandBrake'];
+ if(!catalog.includes(name))return;
+ var text='NyXia, peux-tu m’expliquer '+name+' pour mon podcast, ses avantages, ses limites et comment commencer ? Pose-moi une question à la fois pour adapter tes conseils à mon équipement et à mon budget.';
+ try{sessionStorage.setItem('nyxia:logistique:pending',text)}catch(_){}
+ openAgentTab('nyxia');
+ var frame=document.getElementById('agent-iframe');if(frame&&frame.contentWindow)frame.contentWindow.postMessage({type:'nyxia_logistique_open'},location.origin);
+});

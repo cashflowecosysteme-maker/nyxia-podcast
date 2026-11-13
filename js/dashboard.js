@@ -943,3 +943,26 @@ function openPodcastStudio(){
   if(f&&f.getAttribute("data-loaded")!=="1"){f.setAttribute("data-loaded","1");f.src="/studio-podcast.html";}
   if(typeof setPortalWorkshopOpen==="function")setPortalWorkshopOpen(false);
 }
+
+/* Sous-menu Mes Podcasts : accès direct et visible à l'Agenda Éditorial. */
+function togglePodcastsNavigation(force){
+  var trigger=document.getElementById('podcasts-navigation-trigger');
+  var menu=document.getElementById('podcasts-navigation-menu');
+  if(!trigger||!menu)return;
+  var open=typeof force==='boolean'?force:trigger.getAttribute('aria-expanded')!=='true';
+  trigger.setAttribute('aria-expanded',String(open));
+  menu.style.display=open?'block':'none';
+}
+function openPodcastSubmenu(target){
+  if(target==='agenda'){
+    showPanel('agenda');
+    var frame=document.getElementById('agenda-iframe');
+    if(frame&&frame.getAttribute('data-loaded')!=='1'){
+      frame.setAttribute('data-loaded','1');
+      frame.src='/agenda-editorial.html';
+    }
+  }else if(target==='podcasts'){
+    openUniversePage('podcasts');
+  }
+  togglePodcastsNavigation(true);
+}

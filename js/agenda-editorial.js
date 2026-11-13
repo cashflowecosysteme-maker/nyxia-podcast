@@ -36,7 +36,9 @@ async function startTool(key){
   }));
   const payload={tool:key,title:types[key][0],goal:types[key][1],projectId,projectTitle:p?.title||'Podcast actif',context};
   sessionStorage.setItem('nyxia:eric:tool-handoff:v1',JSON.stringify(payload));
-  location.href='/chat-eric.html?outil='+encodeURIComponent(key);
+  if(window.parent!==window && typeof window.parent.openEricPodcastTool==='function'){
+    window.parent.openEricPodcastTool(key);
+  }else{location.href='/chat-eric.html?outil='+encodeURIComponent(key);}
  }catch(e){aiStatus('Impossible de préparer l’outil : '+e.message)}
 }
 for(const [key,v] of Object.entries(types)){

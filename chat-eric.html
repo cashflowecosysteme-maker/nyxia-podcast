@@ -20,7 +20,7 @@
         <div class="chat-header-name" id="chat-header-name">Éric</div>
         <div class="chat-header-sub" id="chat-header-sub">CashFlow &amp; Monétisation</div>
       </div>
-      <button type="button" class="btn-new-chat" onclick="if(window.parent!==window && typeof window.parent.openPodcastSubmenu==='function'){window.parent.openPodcastSubmenu('agenda')}else{window.location.href='/agenda-editorial.html'}" title="Calendrier éditorial">📅 Calendrier éditorial</button>
+      <button type="button" class="btn-new-chat" onclick="if(window.parent!==window && typeof window.parent.returnToEricCalendar==='function'){window.parent.returnToEricCalendar()}else{window.location.href='/agenda-editorial.html'}" title="Calendrier éditorial">📅 Calendrier éditorial</button>
       <button type="button" class="btn-new-chat" id="btn-welcome-video" onclick="rejouerVideoAccueil()" title="Revoir la vidéo d'accueil">🎬 Vidéo</button>
       <button type="button" class="btn-new-chat" onclick="nouveauChat()" title="Effacer cette conversation">✨ Nouveau chat</button>
     </div>

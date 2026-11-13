@@ -941,8 +941,7 @@ function openPodcastStudio(){
   showPanel("studio");
   var f=document.getElementById("studio-iframe");
   if(f&&f.getAttribute("data-loaded")!=="1"){f.setAttribute("data-loaded","1");f.src="/studio-podcast.html";}
-  // Conserver le menu Studio ouvert après sélection de son contenu.
-  if(typeof setPortalWorkshopOpen==="function")setPortalWorkshopOpen(true);
+  if(typeof setPortalWorkshopOpen==="function")setPortalWorkshopOpen(false);
 }
 
 /* Sous-menu Mes Podcasts : accès direct et visible à l'Agenda Éditorial. */
@@ -967,3 +966,15 @@ function openPodcastSubmenu(target){
   }
   togglePodcastsNavigation(true);
 }
+
+/* Outil sélectionné -> vrai chat Éric dans le panneau existant */
+window.openEricPodcastTool=function(key){
+  if(!key)return;
+  openAgentTab('eric');
+  var frame=document.getElementById('agent-iframe');
+  if(!frame)return;
+  var tok=sessionStorage.getItem('nyxia_token')||'';
+  frame.setAttribute('data-agent','eric');
+  frame.src='/chat-eric.html?t='+encodeURIComponent(tok)+'&outil='+encodeURIComponent(key);
+};
+window.returnToEricCalendar=function(){openPodcastSubmenu('agenda');};

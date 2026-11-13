@@ -234,19 +234,51 @@ function nyxiaUserContextText() {
     chatInput.addEventListener('input', function() { this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 120) + 'px' })
     chatInput.addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } })
 
+    // Extraction du texte avant envoi : aucun fichier brut ni Base64 n'est envoyé au modèle.
+    async function nxLoadScript(url, globalName) {
+      if (window[globalName]) return window[globalName]
+      await new Promise(function(resolve,reject){var sc=document.createElement('script');sc.src=url;sc.onload=resolve;sc.onerror=function(){reject(Error('Bibliothèque de lecture indisponible.'))};document.head.appendChild(sc)})
+      if (!window[globalName]) throw Error('Bibliothèque de lecture indisponible.')
+      return window[globalName]
+    }
+    async function nxReadDocument(file) {
+      var ext=(file.name.split('.').pop()||'').toLowerCase()
+      if (file.size > 8*1024*1024) throw Error('Fichier trop volumineux (maximum 8 Mo).')
+      if (ext==='txt'||ext==='md'||ext==='text') return await file.text()
+      if (ext==='docx') {
+        var mammoth=await nxLoadScript('https://cdn.jsdelivr.net/npm/mammoth@1.9.0/mammoth.browser.min.js','mammoth')
+        var d=await mammoth.extractRawText({arrayBuffer:await file.arrayBuffer()});return d.value||''
+      }
+      if (ext==='pdf') {
+        var pdfjs=await nxLoadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js','pdfjsLib')
+        pdfjs.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
+        var pdf=await pdfjs.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise
+        if(pdf.numPages>80)throw Error('PDF trop long (maximum 80 pages).')
+        var pages=[]
+        for(var n=1;n<=pdf.numPages;n++){
+          var page=await pdf.getPage(n),tc=await page.getTextContent()
+          pages.push('[Page '+n+']\n'+tc.items.map(function(i){return i.str||''}).join(' '))
+        }
+        return pages.join('\n\n')
+      }
+      throw Error('Format non pris en charge : PDF, DOCX, TXT ou MD uniquement.')
+    }
     var fi = document.getElementById('chat-file')
-    if (fi) fi.addEventListener('change', function() {
-      var f = this.files[0]; if (!f) return
-      var size = f.size > 1048576 ? (f.size / 1048576).toFixed(1) + 'MB' : Math.round(f.size / 1024) + 'KB'
-      _currentAttachment = { name: f.name, type: f.type, data: null }
-      var bar = document.getElementById('attach-bar'), nm = document.getElementById('attach-name'), sendBtn = document.getElementById('btn-send')
-      if (bar) bar.style.display = 'flex'
-      if (nm) nm.innerHTML = '<strong>' + f.name + '</strong> (' + size + ') — ⏳ Chargement...'
-      if (sendBtn) sendBtn.disabled = true
-      var reader = new FileReader()
-      reader.onload = function(e) { _currentAttachment.data = e.target.result.split(',')[1]; if (nm) nm.innerHTML = '<strong>' + f.name + '</strong> (' + size + ') — ✅ Prêt'; if (sendBtn) sendBtn.disabled = false }
-      reader.onerror = function() { _currentAttachment = null; if (nm) nm.innerHTML = '❌ Erreur'; if (sendBtn) sendBtn.disabled = false }
-      reader.readAsDataURL(f)
+    if (fi) fi.addEventListener('change', async function() {
+      var f=this.files[0];if(!f)return
+      var bar=document.getElementById('attach-bar'),nm=document.getElementById('attach-name'),sendBtn=document.getElementById('btn-send')
+      _currentAttachment=null
+      if(bar)bar.style.display='flex'
+      if(nm)nm.textContent=f.name+' — Lecture en cours…'
+      if(sendBtn)sendBtn.disabled=true
+      try {
+        var content=(await nxReadDocument(f)).trim()
+        if(!content)throw Error('Aucun texte extractible. Un PDF numérisé nécessite une reconnaissance OCR.')
+        if(content.length>45000)throw Error('Document trop long (maximum 45 000 caractères de texte).')
+        _currentAttachment={name:f.name,type:f.type||'text/plain',text:content}
+        if(nm)nm.textContent=f.name+' — Texte lu ('+content.length+' caractères) ✓'
+      } catch(e){if(nm)nm.textContent='Erreur : '+e.message;if(fi)fi.value=''}
+      finally{if(sendBtn)sendBtn.disabled=false}
     })
     var ca = document.getElementById('btn-clear-attach')
     if (ca) ca.addEventListener('click', function() { _currentAttachment = null; var bar = document.getElementById('attach-bar'), fi2 = document.getElementById('chat-file'); if (bar) bar.style.display = 'none'; if (fi2) fi2.value = '' })
@@ -696,9 +728,44 @@ function nyxiaUserContextText() {
   window.addEventListener('focus',function(){nxLiveRefresh()})
   setTimeout(function(){nxLiveRefresh()},0)
 
+  function nxActivePodcast() {
+    try {
+      var u=JSON.parse(localStorage.getItem('nyxia_user_context')||'{}')
+      var id=localStorage.getItem('nyxia:nolan:active:'+String(u.email||'').toLowerCase())||''
+      return /^[a-f0-9-]{36}$/.test(id)?id:''
+    } catch(e){return ''}
+  }
+  async function nxOfferSaveDocument(attachment,projectId) {
+    if(!attachment||!projectId||_currentAgent!=='nolan')return
+    var match=attachment.name.toLowerCase().match(/master.?prompt|persona|epoc|brand.?book/)
+    if(!match)return
+    var type=match[0].replace(/[^a-z]/g,'')
+    if(type==='masterprompt')type='masterprompt'
+    if(type==='brandbook')type='brandbook'
+    if(['masterprompt','persona','epoc','brandbook'].indexOf(type)<0)return
+    var host=document.getElementById('chat-messages-nolan')
+    if(!host)return
+    var b=document.createElement('button');b.type='button';b.textContent='📁 Enregistrer '+type+' dans Mes Podcasts';
+    b.style.cssText='margin:8px 16px;padding:10px 14px;border:1px solid #C9A24A;border-radius:10px;background:#060A18;color:#C9A24A;cursor:pointer'
+    host.appendChild(b)
+    b.onclick=async function(){
+      b.disabled=true
+      try{
+        var base='/api/nolan/projects/'+projectId+'/documents/'+type
+        var headers={Authorization:'Bearer '+sessionToken,'Content-Type':'application/json'}
+        var r=await fetch(base,{headers:headers}),d=await r.json();if(!r.ok)throw Error(d.error||'Lecture impossible')
+        var old=d.document||{version:0,content:''}
+        if(!confirm('Enregistrer le document dans le podcast actif ?'+(old.content?' Une nouvelle version sera créée, sans effacer l’historique.':''))){b.disabled=false;return}
+        r=await fetch(base,{method:'PUT',headers:headers,body:JSON.stringify({content:attachment.text,status:'brouillon',expectedVersion:old.version||0})})
+        d=await r.json();if(!r.ok)throw Error(d.error||'Enregistrement impossible')
+        b.textContent='✓ Enregistré dans Mes Podcasts (version '+d.document.version+')'
+      }catch(e){b.textContent='Échec : '+e.message;b.disabled=false}
+    }
+  }
   function nxSendMessageTextOriginal(text, fromVoice, options) {
     _inputWasVoice = !!fromVoice
     var attachmentToSend = _currentAttachment ? JSON.parse(JSON.stringify(_currentAttachment)) : null
+    var nxProjectId = nxActivePodcast()
     var displayText = text
     if (attachmentToSend) { displayText = text ? text + '\n📎 ' + attachmentToSend.name : '📎 ' + attachmentToSend.name }
     addUserMessage(displayText)
@@ -724,13 +791,14 @@ function nyxiaUserContextText() {
     }
     fetch('/api/chat', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text, history: chatHistories[requestAgent].slice(-10), userName: clientName, agent: requestAgent, attachment: attachmentToSend, token: sessionToken })
+      body: JSON.stringify({ message: text, history: chatHistories[requestAgent].slice(-10), userName: clientName, agent: requestAgent, attachment: attachmentToSend, projectId: nxProjectId, token: sessionToken })
     })
-    .then(function(r){ return r.json() })
+    .then(function(r){ return r.json().then(function(d){if(!r.ok)throw Error(d.error||'Erreur '+r.status);return d}) })
     .then(function(data) {
       removeTyping()
       var reply = data.content || 'Erreur inattendue — réessaie dans un instant 💜'
       addBotMessage(reply)
+      if (requestAgent==='nolan') nxOfferSaveDocument(attachmentToSend,nxProjectId)
       chatHistories[requestAgent].push({ role: 'assistant', content: reply })
       saveChatToStorage()
       if (chatHistories[requestAgent].length > 20) chatHistories[requestAgent] = chatHistories[requestAgent].slice(-20)

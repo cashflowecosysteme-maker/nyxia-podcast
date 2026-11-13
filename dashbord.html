@@ -74,7 +74,7 @@
             <button type="button" id="nav-podcasts" onclick="openPodcastSubmenu('podcasts')" style="display:block;width:100%;text-align:left;padding:7px 8px;background:transparent;border:0;border-radius:0;color:#aab4d2;cursor:pointer;font-family:Montserrat,sans-serif;font-size:12px;font-weight:400;line-height:1.45;white-space:normal">📁 Ouvrir Mes Podcasts</button>
             <button type="button" onclick="openPodcastGuidance('nolan')" style="display:block;width:100%;text-align:left;padding:7px 8px;background:transparent;border:0;color:#aab4d2;cursor:pointer;font-family:Montserrat,sans-serif;font-size:12px;line-height:1.45;white-space:normal">🎙️ Ton parcours · Avec Nolan</button>
             <button type="button" onclick="openPodcastGuidance('diane')" style="display:block;width:100%;text-align:left;padding:7px 8px;background:transparent;border:0;color:#aab4d2;cursor:pointer;font-family:Montserrat,sans-serif;font-size:12px;line-height:1.45;white-space:normal">👑 Avec Diane · Identité et lancement</button>
-            <button type="button" onclick="openEricPodcastTool('monetisation')" style="display:block;width:100%;text-align:left;padding:7px 8px;background:transparent;border:0;color:#aab4d2;cursor:pointer;font-family:Montserrat,sans-serif;font-size:12px;line-height:1.45;white-space:normal">💰 Monétisation · Avec Éric</button>
+            <button type="button" onclick="openEricToolsSection()" style="display:block;width:100%;text-align:left;padding:7px 8px;background:transparent;border:0;color:#aab4d2;cursor:pointer;font-family:Montserrat,sans-serif;font-size:12px;line-height:1.45;white-space:normal">💰 Monétisation · Avec Éric</button>
             <button type="button" id="nav-agenda" onclick="openPodcastSubmenu('agenda')" style="display:block;width:100%;text-align:left;padding:7px 8px;background:transparent;border:0;border-radius:0;color:#aab4d2;cursor:pointer;font-family:Montserrat,sans-serif;font-size:12px;font-weight:400;line-height:1.45;white-space:normal">📅 Calendrier éditorial</button>
           </div>
         </div>
@@ -156,5 +156,28 @@
   <script src="/js/starry-bg.js" defer></script>
 
   <script src="/js/dashboard.js"></script>
+
+<script>
+/* Navigation directe vers les huit outils existants d'Éric, sans ouvrir le Chat. */
+function openEricToolsSection(){
+  if(typeof openPodcastSubmenu !== 'function') return;
+  openPodcastSubmenu('agenda');
+  var frame=document.getElementById('agenda-iframe');
+  if(!frame) return;
+  function focusTools(){
+    try {
+      var doc=frame.contentDocument;
+      var tools=doc && doc.getElementById('eric-monetisation');
+      if(tools){
+        var section=tools.closest('section') || tools;
+        section.scrollIntoView({block:'start',behavior:'instant'});
+        return true;
+      }
+    } catch(e) {}
+    return false;
+  }
+  if(!focusTools()) frame.addEventListener('load',function onLoad(){frame.removeEventListener('load',onLoad);focusTools();},{once:true});
+}
+</script>
 </body>
 </html>

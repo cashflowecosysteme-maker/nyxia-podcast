@@ -26,7 +26,7 @@ async function save(){const b=payload();if(!b.title){status('Le titre est obliga
 async function remove(){if(!selected||!confirm('Supprimer définitivement cette publication ?'))return;try{await api(base()+'/'+selected.id,'DELETE');selected=null;$('editor').classList.add('hide');await load()}catch(e){status(e.message)}}
 function csv(){const fields=['date','title','kind','status','platforms','episode','content','notes'];const q=v=>'"'+String(Array.isArray(v)?v.join('; '):v||'').replaceAll('"','""')+'"';const text='\ufeff'+[fields.join(';'),...filtered().map(x=>fields.map(f=>q(x[f])).join(';'))].join('\r\n');const a=document.createElement('a');const url=URL.createObjectURL(new Blob([text],{type:'text/csv;charset=utf-8'}));a.href=url;a.download='nyxia-agenda-'+projectId+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)}
 async function startTool(key){
- if(!projectId){aiStatus('Sélectionne d’abord un podcast.');return}
+ if(!projectId){aiStatus('Sélectionne d’abord un podcast.');if(key==='monetisation')$('monetisation-status').textContent='Sélectionne d’abord un podcast.';return}
  const p=projects.find(x=>x.id===projectId);
  aiStatus('Préparation du contexte pour le véritable Chat Éric…');
  try{
@@ -41,7 +41,9 @@ async function startTool(key){
   }else{location.href='/chat-eric.html?outil='+encodeURIComponent(key);}
  }catch(e){aiStatus('Impossible de préparer l’outil : '+e.message)}
 }
+$('launch-monetisation').onclick=()=>startTool('monetisation');
 for(const [key,v] of Object.entries(types)){
+ if(key==='monetisation')continue;
  const b=document.createElement('button');b.className='tool';b.type='button';
  const strong=document.createElement('strong');strong.textContent=v[0];
  b.append(strong,document.createTextNode('Créer avec Éric dans son vrai chat'));

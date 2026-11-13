@@ -1,1 +1,144 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mes Podcasts · NyXia</title><link rel="icon" href="/images/FavIcon.png"><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/css/univers-pages.css"><style>:root{--gold:#C9A24A}body,button,input,select,textarea,h1,h2,h3{font-family:Montserrat,sans-serif}h1{font-size:clamp(28px,4vw,44px)}.wrap{padding:20px;margin-top:20px;border:1px solid rgba(201,162,74,.28);background:rgba(8,15,36,.8);border-radius:18px}.field{display:block;width:100%;margin:7px 0 15px;padding:12px;border:1px solid rgba(201,162,74,.35);border-radius:10px;background:#101a36;color:#fff;font:inherit}.field:focus{outline:2px solid #A78BFA}textarea.field{min-height:140px;resize:vertical}.btn{background:#060A18;border:1px solid #C9A24A;color:white;border-radius:12px;padding:11px 15px;cursor:pointer;font:600 13px Montserrat}.btn.primary{background:#C9A24A;color:#060A18}.btn:disabled{opacity:.5}.projects{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}.project{padding:16px;border:1px solid rgba(123,92,255,.4);border-radius:14px;background:rgba(15,28,63,.7)}.project.active{border-color:#C9A24A}.project h3{overflow-wrap:anywhere}.project p{overflow-wrap:anywhere;color:#d6d3ef;font-size:13px}.actions{display:flex;flex-wrap:wrap;gap:10px}.hidden{display:none}.hint{font-size:12px;color:#A78BFA}.msg{color:#A78BFA;min-height:22px;margin:12px 0}label{font-size:13px;color:#d6d3ef}</style></head><body><canvas id="starry-canvas" aria-hidden="true"></canvas><main class="page"><section class="hero"><div><p class="eyebrow">🎙️ NyXia · Outils</p><h1>Mes Podcasts</h1><p>Un espace pour chacun de tes podcasts, tes documents et tes décisions.</p></div><div class="hero-orb">🎙️</div></section><section class="wrap"><h2>Créer un podcast</h2><form id="create"><label for="title">Nom du podcast</label><input id="title" class="field" maxlength="120" required><label for="description">Description (facultative)</label><textarea id="description" class="field" maxlength="1000" style="min-height:80px"></textarea><button class="btn primary" id="create-btn">Créer mon podcast</button></form></section><section class="wrap"><h2>Mes projets</h2><p id="notice" class="msg" role="status"></p><div id="projects" class="projects"></div></section><section id="editor" class="wrap hidden"><h2>Podcast sélectionné</h2><form id="update"><label for="edit-title">Nom</label><input class="field" id="edit-title" maxlength="120" required><label for="edit-desc">Description</label><textarea class="field" id="edit-desc" maxlength="1000" style="min-height:80px"></textarea><label for="edit-status">Statut</label><select class="field" id="edit-status"><option value="exploration">Exploration</option><option value="preparation">Préparation</option><option value="actif">Actif</option><option value="pause">En pause</option><option value="archive">Archivé</option></select><div class="actions"><button class="btn" type="submit">Enregistrer le projet</button><button class="btn" type="button" id="nolan">Parler à Nolan</button></div></form><h2 style="margin-top:24px">Documents du podcast</h2><p class="hint">Les documents sont enregistrés dans ton compte. Leur transfert automatique au chat de Nolan sera ajouté ultérieurement.</p><label for="doc-type">Document</label><select class="field" id="doc-type"><option value="masterprompt">Masterprompt</option><option value="persona">Persona</option><option value="epoc">EPOC</option><option value="brandbook">BrandBook</option><option value="adn">ADN</option><option value="episodes">Épisodes</option><option value="decisions">Décisions</option><option value="corrections">Corrections</option><option value="notes">Notes</option></select><label for="doc-content">Contenu</label><textarea id="doc-content" class="field"></textarea><label for="doc-status">Statut du document</label><select class="field" id="doc-status"><option value="brouillon">Brouillon</option><option value="propose">Proposé</option><option value="valide">Validé</option><option value="publie">Publié</option></select><p id="version" class="hint">Version 0</p><button id="save" class="btn primary" type="button">Enregistrer le document</button><p id="editor-notice" class="msg" role="status"></p></section></main><script src="/js/starry-bg.js" defer></script><script src="/js/mes-podcasts.js" defer></script></body></html>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" type="image/png" href="/images/FavIcon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/univers-pages.css">
+  <title>Mes Podcasts · NyXia</title>
+  <style>
+    /* Ajustements locaux, sans modifier les feuilles communes NyXia. */
+    :root{--gold:#C9A24A}
+    body,.page,button,input,textarea,select{font-family:'Montserrat',sans-serif}
+    h1,h2,h3{font-family:'Montserrat',sans-serif}
+    h1{font-size:clamp(28px,4vw,43px);line-height:1.15}
+    .page{max-width:1100px}
+    .project-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:20px 0}
+    .project-card{border:1px solid rgba(201,162,74,.28);background:rgba(15,28,63,.68);border-radius:18px;padding:18px}
+    .project-card.active{border-color:#C9A24A;box-shadow:0 0 24px rgba(201,162,74,.12)}
+    .project-card h3{margin:8px 0;font-size:17px;overflow-wrap:anywhere}
+    .project-card p{font-size:12px;color:#d6d3ef;line-height:1.6;overflow-wrap:anywhere}
+    .tag{font-size:11px;color:#C9A24A}
+    .form-row{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+    .field{width:100%;border:1px solid rgba(201,162,74,.28);background:#101a36;color:#fff;border-radius:12px;padding:12px;font:inherit}
+    .field:focus{outline:2px solid #A78BFA;outline-offset:1px}
+    textarea.field{min-height:170px;resize:vertical;line-height:1.6}
+    label{display:block;margin:10px 0 6px;font-size:13px;color:#d6d3ef}
+    .ny-btn{border:1px solid #C9A24A;border-radius:11px;background:rgba(6,10,24,.8);color:#f5f3ff;padding:11px 16px;font:600 13px 'Montserrat',sans-serif;cursor:pointer}
+    .ny-btn.primary{background:#C9A24A;color:#060A18}
+    .ny-btn:disabled{opacity:.45;cursor:not-allowed}
+    .ny-btn:hover:not(:disabled){box-shadow:0 0 18px rgba(201,162,74,.2)}
+    .editor{margin-top:20px;padding:20px;border:1px solid rgba(123,92,255,.24);border-radius:18px;background:rgba(8,15,36,.75)}
+    .editor h2{margin:0 0 12px;font-size:20px}
+    .message{min-height:20px;margin:12px 0;color:#A78BFA;font-size:13px}
+    .message.error{color:#ffb8c1;border:0;padding:0;text-align:left}
+    .hidden{display:none!important}
+    .help{font-size:12px;color:#b6b8d7;line-height:1.6}
+    .inline{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .inline>*{flex:1 1 180px}
+    .guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px;margin:12px 0 20px}
+    .guide-card{display:flex;flex-direction:column;align-items:flex-start;gap:9px;padding:15px;background:#121d38;border:1px solid rgba(201,162,74,.27);border-radius:14px}
+    .guide-card small{color:#c7c4dc}.guide-card span{font-size:11px;color:#C9A24A}.guide-card .ny-btn{width:100%;margin-top:auto}
+    .guide-step{margin:12px 0;padding:16px;background:rgba(18,29,56,.8);border:1px solid rgba(123,92,255,.25);border-radius:14px}
+    @media(max-width:650px){.hero{padding:20px}.editor{padding:14px}}
+  </style>
+</head>
+<body>
+  <canvas id="starry-canvas" aria-hidden="true"></canvas>
+  <main class="page">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">🎙️ Univers NyXia · Outils</p>
+        <h1>Mon atelier de podcast</h1>
+        <p>Commence par choisir ton podcast. Nolan t’accompagne dans la création, et ton travail est conservé ici.</p>
+      </div>
+      <div class="hero-orb" aria-hidden="true">🎙️</div>
+    </section>
+
+    <section class="editor" aria-labelledby="create-title">
+      <h2 id="create-title">Créer un podcast</h2>
+      <form id="create">
+        <label for="title">Nom du podcast</label>
+        <input class="field" id="title" name="title" maxlength="120" required placeholder="Ex. : Mon nouveau podcast">
+        <label for="description">Description (facultative)</label>
+        <textarea class="field" id="description" name="description" maxlength="1000" style="min-height:80px" placeholder="Le sujet, l'intention, le public…"></textarea>
+        <div class="form-row"><button class="ny-btn primary" id="create-btn" type="submit">Créer mon podcast</button></div>
+      </form>
+    </section>
+
+    <section aria-labelledby="list-title">
+      <div class="toolbar"><h2 id="list-title">Mes projets</h2><button class="ny-btn" id="refresh-button" type="button">Actualiser</button></div>
+      <p id="notice" class="message" role="status" aria-live="polite"></p>
+      <div id="projects" class="project-list" aria-live="polite"></div>
+    </section>
+
+    <section class="editor hidden" id="guided-workspace" aria-labelledby="guided-title">
+      <p class="eyebrow">TON PARCOURS · AVEC NOLAN</p>
+      <h2 id="guided-title">Par où commencer ?</h2>
+      <p id="guided-podcast-name" class="help"></p>
+      <div class="guide-step"><strong>1 · Construis les fondations de ton podcast</strong>
+        <p class="help">Tu peux répondre aux questions directement avec Nolan ou lui joindre un document que tu as déjà préparé. Tu n'as rien à copier depuis le chat : Nolan t'aide à construire le document et tu valides avant son enregistrement.</p>
+        <button class="ny-btn primary" type="button" id="guided-nolan">Commencer avec Nolan</button>
+      </div>
+      <h3 style="margin:18px 0 10px">Mes quatre documents essentiels</h3>
+      <div class="guide-grid" id="guided-documents">
+        <div class="guide-card"><strong>MasterPrompt</strong><small>Identité et mission</small><span id="guide-status-masterprompt">À préparer</span><button class="ny-btn" type="button" data-guide-doc="masterprompt">Consulter / modifier</button></div>
+        <div class="guide-card"><strong>Persona</strong><small>À qui tu t'adresses</small><span id="guide-status-persona">À préparer</span><button class="ny-btn" type="button" data-guide-doc="persona">Consulter / modifier</button></div>
+        <div class="guide-card"><strong>EPOC</strong><small>Promesse et concept</small><span id="guide-status-epoc">À préparer</span><button class="ny-btn" type="button" data-guide-doc="epoc">Consulter / modifier</button></div>
+        <div class="guide-card"><strong>BrandBook</strong><small>Univers de marque</small><span id="guide-status-brandbook">À préparer</span><button class="ny-btn" type="button" data-guide-doc="brandbook">Consulter / modifier</button></div>
+      </div>
+      <div class="guide-step"><strong>2 · Prépare tes épisodes</strong><p class="help">Épisodes 0, 1 et 2 : retrouve les idées et scripts enregistrés dans ton projet.</p><button class="ny-btn" type="button" data-guide-doc="episodes">Ouvrir mes épisodes</button></div>
+      <div class="guide-step"><strong>3 · Ton carnet de bord</strong><p class="help">Note ici tes idées personnelles, tes questions et tes réflexions. Cet espace est différent des documents validés.</p><button class="ny-btn" type="button" data-guide-doc="notes">Ouvrir mon carnet</button></div>
+      <button class="ny-btn" id="toggle-manual-editor" type="button" aria-expanded="false">Afficher l'éditeur de documents</button>
+    </section>
+
+    <section class="editor hidden" id="editor" aria-labelledby="edit-title">
+      <h2 id="edit-title">Mon podcast</h2>
+      <p class="help" id="active-label"></p>
+      <form id="update">
+        <label for="edit-title">Nom</label>
+        <input class="field" id="edit-title" maxlength="120" required>
+        <label for="edit-desc">Description</label>
+        <textarea class="field" id="edit-desc" maxlength="1000" style="min-height:90px"></textarea>
+        <label for="edit-status">Étape du projet</label>
+        <select class="field" id="edit-status">
+          <option value="exploration">Exploration</option><option value="preparation">Préparation</option>
+          <option value="actif">Actif</option><option value="pause">En pause</option><option value="archive">Archivé</option>
+        </select>
+        <div class="form-row"><button class="ny-btn" type="submit">Enregistrer le projet</button><button class="ny-btn" type="button" id="nolan">Parler à Nolan</button></div>
+      </form>
+      <div id="manual-documents" class="hidden"><h2 style="margin-top:24px">Documents du podcast</h2>
+      <p class="help">Choisis un document, écris ou colle son contenu, puis enregistre. Les modifications sont sauvegardées sur ton compte NyXia.</p>
+      <label for="doc-type">Document</label>
+      <select class="field" id="doc-type">
+        <option value="masterprompt">Masterprompt</option>
+        <option value="persona">Persona</option>
+        <option value="epoc">EPOC</option>
+        <option value="brandbook">BrandBook</option>
+        <option value="adn">ADN du podcast</option>
+        <option value="episodes">Épisodes</option>
+        <option value="decisions">Décisions</option>
+        <option value="corrections">Corrections</option>
+        <option value="notes">Notes</option>
+      </select>
+      <label for="doc-content">Contenu</label>
+      <textarea class="field" id="doc-content" placeholder="Le contenu de ton document…"></textarea>
+      <div class="inline">
+        <div><label for="doc-status">Statut</label><select class="field" id="doc-status">
+          <option value="brouillon">Brouillon</option><option value="propose">Proposé</option>
+          <option value="valide">Validé</option><option value="publie">Publié</option>
+        </select></div>
+        <div><p class="help" id="version">Version —</p></div>
+      </div>
+      <div class="form-row"><button class="ny-btn primary" id="save" type="button">Enregistrer le document</button></div>
+      <p id="editor-notice" class="message" role="status" aria-live="polite"></p></div>
+    </section>
+  </main>
+  <script src="/js/starry-bg.js" defer></script>
+  <script src="/js/mes-podcasts.js" defer></script>
+</body>
+</html>

@@ -77,5 +77,75 @@
     else {input.focus();}
   });
   </script>
+
+<!-- NYXIA: enregistrement direct du résultat depuis le véritable Chat Éric -->
+<style>
+#nx-eric-save{position:fixed;bottom:94px;right:18px;z-index:45;font:400 12px Montserrat,sans-serif;color:#f4e9ff;background:#10162e;border:1px solid #c9a24a;border-radius:10px;padding:9px 12px;cursor:pointer}
+#nx-eric-save-panel{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;background:rgba(6,10,24,.85);padding:18px}
+#nx-eric-save-panel.open{display:flex}
+#nx-eric-save-panel .nx-inner{width:min(620px,100%);max-height:88vh;overflow:auto;background:#0d142e;border:1px solid #c9a24a;border-radius:14px;padding:18px;color:#eee;font:400 13px Montserrat,sans-serif}
+#nx-eric-save-panel label{display:block;margin:10px 0 5px}
+#nx-eric-save-panel input,#nx-eric-save-panel textarea,#nx-eric-save-panel select{width:100%;box-sizing:border-box;background:#060a18;color:#fff;border:1px solid #7b5cff;border-radius:8px;padding:10px;font:inherit}
+#nx-eric-save-panel textarea{min-height:210px;resize:vertical}
+#nx-eric-save-panel button{margin:10px 8px 0 0;border:1px solid #c9a24a;border-radius:8px;background:#10162e;color:#fff;padding:9px 13px;font:inherit;cursor:pointer}
+</style>
+<button type="button" id="nx-eric-save" hidden>Enregistrer mon travail</button>
+<div id="nx-eric-save-panel" role="dialog" aria-modal="true" aria-label="Enregistrer le travail avec Éric">
+ <div class="nx-inner"><div style="color:#c9a24a">Enregistrer avec Éric</div>
+ <p>Relis et ajuste ton contenu avant de l'enregistrer dans ton podcast. Aucune copie manuelle nécessaire.</p>
+ <label for="nx-eric-save-title">Titre</label><input id="nx-eric-save-title" maxlength="160">
+ <label for="nx-eric-save-content">Contenu à enregistrer</label><textarea id="nx-eric-save-content"></textarea>
+ <label for="nx-eric-save-date">Date (facultative)</label><input type="date" id="nx-eric-save-date">
+ <p id="nx-eric-save-status" role="status" aria-live="polite"></p>
+ <button type="button" id="nx-eric-confirm">Enregistrer dans mon podcast</button><button type="button" id="nx-eric-cancel">Retour au Chat Éric</button>
+ </div>
+</div>
+<script>
+(function(){'use strict';
+ const handoffKey='nyxia:eric:tool-handoff:v1';
+ const params=new URLSearchParams(location.search);
+ const tool=params.get('outil');
+ if(!tool)return;
+ let payload=null;try{payload=JSON.parse(sessionStorage.getItem(handoffKey)||'null')}catch(e){}
+ if(!payload||payload.tool!==tool||!payload.projectId)return;
+ const btn=document.getElementById('nx-eric-save'),panel=document.getElementById('nx-eric-save-panel');
+ const $=id=>document.getElementById(id);
+ btn.hidden=false;
+ const status=msg=>{$('nx-eric-save-status').textContent=msg};
+ const close=()=>{panel.classList.remove('open');status('')};
+ $('nx-eric-cancel').onclick=close;
+ function latestAnswer(){
+   let stored;try{stored=JSON.parse(sessionStorage.getItem('nyxia_chat_eric')||'{}')}catch(e){stored={}}
+   const messages=Array.isArray(stored.messages)?stored.messages:[];
+   const assistant=messages.filter(m=>m&&m.role==='assistant'&&typeof m.content==='string'&&m.content.trim());
+   return assistant.length?assistant.map(m=>m.content.trim()).join('\n\n---\n\n'):'';
+ }
+ btn.onclick=()=>{
+   $('nx-eric-save-title').value=payload.title.replace(/^[^\p{L}\p{N}]+/u,'').trim();
+   $('nx-eric-save-content').value=latestAnswer();
+   $('nx-eric-save-date').value='';
+   panel.classList.add('open');
+   status($('nx-eric-save-content').value?'Tu peux ajuster ce résultat avant de l’enregistrer.':'Éric n’a pas encore produit de réponse à enregistrer.');
+ };
+ $('nx-eric-confirm').onclick=async()=>{
+   const title=$('nx-eric-save-title').value.trim();
+   const content=$('nx-eric-save-content').value.trim();
+   if(!title||!content){status('Il faut un titre et un contenu avant l’enregistrement.');return}
+   const token=sessionStorage.getItem('nyxia_token');
+   if(!token){status('Session expirée. Reconnecte-toi.');return}
+   const confirmBtn=$('nx-eric-confirm');confirmBtn.disabled=true;status('Enregistrement…');
+   try{
+     const data={title,content,date:$('nx-eric-save-date').value||new Date().toISOString().slice(0,10),kind:tool==='scripteur'||tool==='preparation'?'entrevue':'publication',status:'redaction',platforms:[],episode:'',notes:'Créé avec Éric — '+payload.title+' (outil '+tool+'). À programmer si nécessaire.'};
+     const response=await fetch('/api/editorial/'+encodeURIComponent(payload.projectId),{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(data)});
+     const result=await response.json().catch(()=>({}));
+     if(!response.ok)throw new Error(result.error||'Enregistrement impossible ('+response.status+').');
+     if(!result.item)throw new Error('Le serveur n’a pas confirmé la création.');
+     status('Enregistré dans le calendrier éditorial de « '+payload.projectTitle+' ».');
+     const link=document.createElement('a');link.href='/agenda-editorial.html?project='+encodeURIComponent(payload.projectId);link.textContent='Voir mon calendrier éditorial';link.style.cssText='display:block;margin-top:10px;color:#c9a24a';
+     const old=panel.querySelector('.nx-save-link');if(old)old.remove();link.className='nx-save-link';$('nx-eric-save-status').after(link);
+   }catch(err){status('Non enregistré : '+err.message)}finally{confirmBtn.disabled=false}
+ };
+})();
+</script>
 </body>
 </html>

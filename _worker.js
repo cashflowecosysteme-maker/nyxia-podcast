@@ -1,3 +1,4 @@
+import { handleNolanProjects } from './js/nolan-projects.js';
 function nxModuleHeading(m,index){const title=String(m?.titre||'');const mode=m?.prefixMode||'none';const prefix=mode==='none'?'':mode==='custom'?String(m?.prefixText||''):'Module '+(m?.numero||index+1)+' ·';return[prefix,title].filter(Boolean).join(' ')}
 import { handleOvilusPremium } from './ovilus/engine.js';
 // NyXia — Coque Portail universelle V2
@@ -678,6 +679,17 @@ const nyxBookingOriginalWorker = {
 export default {
   ...nyxBookingOriginalWorker,
   async fetch(request,env,ctx){
+    // Nolan : routes de mémoire multipodcasts (indépendantes de la Formation Vivante).
+    if(new URL(request.url).pathname.startsWith('/api/nolan/projects')){
+      const nolanResponse=await handleNolanProjects(request,env,async token=>{
+        const authResponse=await nxOriginalWorker.fetch(new Request(new URL('/api/check-auth',request.url),{
+          method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token})
+        }),env,ctx);
+        if(!authResponse.ok)return {valid:false};
+        return authResponse.json();
+      });
+      if(nolanResponse)return nolanResponse;
+    }
     const page=new URL(request.url).pathname.replace(/\/+$/,'')||'/';
     const index=request.method==='GET'&&['/','/index','/index.html'].includes(page);
     let input=request;

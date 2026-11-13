@@ -1383,13 +1383,9 @@ function nyxiaUserContextText() {
 /* NyXia — Accès direct à Mes Podcasts depuis le chat Nolan.
    Réutilise la navigation native du Dashboard, sans recharger le chat. */
 window.ouvrirMesPodcastsDepuisNolan = function () {
-  try {
-    if (window.parent && window.parent !== window &&
-        window.parent.location.origin === window.location.origin &&
-        typeof window.parent.openUniversePage === 'function') {
-      window.parent.openUniversePage('podcasts');
-      return;
-    }
-  } catch (_) {}
-  window.location.href = '/mes-podcasts.html';
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({type:'nyxia_podcasts_open'}, window.location.origin);
+  } else {
+    window.location.href='/mes-podcasts.html';
+  }
 };

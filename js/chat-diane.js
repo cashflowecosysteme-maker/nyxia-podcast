@@ -326,7 +326,11 @@ function nyxiaUserContextText() {
     wrapper.appendChild(videoWrap)
     div.innerHTML = avatarHtmlFor(agentKey)
     div.appendChild(wrapper)
-    msgs.appendChild(div); msgs.scrollTop = msgs.scrollHeight
+    // La vidéo de bienvenue doit TOUJOURS précéder les messages du chat,
+    // y compris si le déclenchement du parcours a déjà ajouté une question.
+    msgs.insertBefore(div, msgs.firstChild)
+    // Ne pas déplacer l'utilisateur au bas du fil lors de l'insertion de la vidéo.
+    msgs.scrollTop = 0
 
     if (autoplay) {
       markWelcomeVideoSeen(agentKey)

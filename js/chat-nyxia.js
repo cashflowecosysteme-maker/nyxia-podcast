@@ -243,7 +243,7 @@ function nyxiaUserContextText() {
     chatInput.addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } })
 
     // Bibliothèque logistique : restituer le logiciel choisi dans le chat officiel.
-    // Aucun appel IA automatique : l'étudiant décide d'envoyer son message.
+    // Envoyer automatiquement la demande du logiciel sélectionné au chat officiel.
     function receiveLogistiqueRequest() {
       var pending = '';
       try { pending = sessionStorage.getItem('nyxia:logistique:pending') || ''; } catch (_) {}
@@ -255,7 +255,7 @@ function nyxiaUserContextText() {
       try { sessionStorage.removeItem('nyxia:logistique:pending'); } catch (_) {}
       var suggestions = document.getElementById('suggestions');
       if (suggestions) suggestions.style.display = 'none';
-      input.focus();
+      sendMessage();
     }
     window.addEventListener('message', function(event) {
       if (event.origin !== location.origin || event.source !== parent) return;

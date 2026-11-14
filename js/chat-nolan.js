@@ -711,6 +711,19 @@ function nyxiaUserContextText() {
     {id:'epoc',name:'EPOC',definition:'Engagement (accroche), Problème & Promesse, Outils & Ouverture, Conversion & Clôture.'},
     {id:'brandbook',name:'BrandBook',definition:'Identité verbale, visuelle et sonore du podcast.'}
   ];
+
+  // Réception du pilier choisi dans Mes Podcasts : conversation officielle Nolan.
+  function nxStartSelectedPillar(){
+    var data=null;try{data=JSON.parse(sessionStorage.getItem('nyxia:nolan:pending-pillar')||'null')}catch(e){}
+    if(!data||['masterprompt','persona','epoc','brandbook'].indexOf(data.pillar)<0)return;
+    if(typeof sendMessageText!=='function'||!document.getElementById('chat-messages-nolan'))return;
+    try{sessionStorage.removeItem('nyxia:nolan:pending-pillar')}catch(e){}
+    var current=nxPiliersRead();current.active=data.pillar;nxPiliersWrite(current);
+    sendMessageText('Nolan, je veux travailler mon pilier '+data.pillar+' pour mon podcast '+String(data.projectTitle||'')+'. Utilise les questions originales de ce pilier pour m’accompagner, clarifier mes réponses et construire le document avec moi. Commence par une seule question utile.',false);
+  }
+  window.addEventListener('message',function(e){if(e.origin===location.origin&&e.data&&e.data.type==='nyxia_nolan_pillar_open')setTimeout(nxStartSelectedPillar,300)});
+  window.addEventListener('load',function(){setTimeout(nxStartSelectedPillar,650)});
+
   function nxPiliersKey(){
     var u=String(NYXIA_USER.email||clientEmail||clientName||'session').toLowerCase();
     return 'nyxia:nolan:piliers:'+u+':'+(nxActivePodcast()||'sans-podcast');
@@ -728,6 +741,8 @@ function nyxiaUserContextText() {
   function nxPiliersContext(message){
     var state=nxPiliersRead();
     var selected=nxPiliersStage(message);
+    var pending=null;try{pending=JSON.parse(sessionStorage.getItem('nyxia:nolan:pending-pillar')||'null')}catch(e){}
+    if(pending&&['masterprompt','persona','epoc','brandbook'].indexOf(pending.pillar)!==-1){selected=pending.pillar;try{sessionStorage.removeItem('nyxia:nolan:pending-pillar')}catch(e){}}
     if(selected){state.active=selected;nxPiliersWrite(state)}
     if(!state.active && !/22 questions|quatre piliers|4 piliers|cahier de r[ée]flexion/i.test(message))return '';
     var active=state.active||'masterprompt';

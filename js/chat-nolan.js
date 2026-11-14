@@ -333,7 +333,12 @@ function nyxiaUserContextText() {
     var msgs = document.getElementById('chat-messages-' + agentKey)
     if (!msgs) return
     // Évite les doublons vidéo déjà présents
-    if (msgs.querySelector('video[data-welcome="1"]')) return
+    var existingVideo = msgs.querySelector('video[data-welcome="1"]')
+    if (existingVideo) {
+      var existingBlock = existingVideo.closest('.msg')
+      if (existingBlock && msgs.firstElementChild !== existingBlock) msgs.insertBefore(existingBlock, msgs.firstChild)
+      return
+    }
 
     var div = document.createElement('div'); div.className = 'msg bot'
     div.style.cssText = 'display:flex;gap:10px;align-items:flex-start'
@@ -350,7 +355,7 @@ function nyxiaUserContextText() {
     wrapper.appendChild(videoWrap)
     div.innerHTML = avatarHtmlFor(agentKey)
     div.appendChild(wrapper)
-    msgs.appendChild(div); msgs.scrollTop = msgs.scrollHeight
+    msgs.insertBefore(div, msgs.firstChild); msgs.scrollTop = msgs.scrollHeight
 
     if (autoplay) {
       markWelcomeVideoSeen(agentKey)

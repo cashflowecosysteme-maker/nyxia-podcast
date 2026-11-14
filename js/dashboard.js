@@ -258,6 +258,8 @@ var PORTAL_AGENT_META = {"diane":{"key":"diane","name":"Diane","sub":"Créatrice
       document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'))
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'))
       updateWritingWorkshopState('')
+      // Keep the currently opened sidebar groups available while switching pages.
+      // No automatic collapse: students can move between tools without reopening menus.
       var panelEl = document.getElementById('panel-' + name)
       if (panelEl) panelEl.classList.add('active')
       var navEl = document.getElementById('nav-' + name)
@@ -949,7 +951,7 @@ var PORTAL_AGENT_META = {"diane":{"key":"diane","name":"Diane","sub":"Créatrice
 function openPodcastStudio(){
   showPanel("studio");
   var f=document.getElementById("studio-iframe");
-  if(f&&f.getAttribute("data-loaded")!=="1"){f.setAttribute("data-loaded","1");f.src="/studio-podcast.html";}
+  if(f&&(f.getAttribute("data-loaded")!=="1"||!f.getAttribute('src')||f.getAttribute('src')==='about:blank')){f.setAttribute("data-loaded","1");f.src="/studio-podcast.html";}
   /* Conserver le sous-menu Studio visible après ouverture, comme Mes Podcasts. */
   var studioMenu=document.getElementById("portal-workshop");
   var studioTrigger=document.getElementById("portal-workshop-trigger");
@@ -1029,7 +1031,7 @@ window.returnToEricCalendar=function(){openPodcastSubmenu('agenda');};
 function openNyxiaLogistique(){
  showPanel('logistique');
  var frame=document.getElementById('logistique-iframe');
- if(frame&&frame.getAttribute('data-loaded')!=='1'){frame.setAttribute('data-loaded','1');frame.src='/bibliotheque-logistique.html';}
+ if(frame&&(frame.getAttribute('data-loaded')!=='1'||!frame.getAttribute('src')||frame.getAttribute('src')==='about:blank')){frame.setAttribute('data-loaded','1');frame.src='/bibliotheque-logistique.html';}
  var menu=document.getElementById('portal-workshop');if(menu)menu.classList.add('open');
  var trigger=document.getElementById('portal-workshop-trigger');if(trigger)trigger.setAttribute('aria-expanded','true');
 }
@@ -1044,3 +1046,23 @@ window.addEventListener('message',function(e){
  openAgentTab('nyxia');
  var frame=document.getElementById('agent-iframe');if(frame&&frame.contentWindow)frame.contentWindow.postMessage({type:'nyxia_logistique_open'},location.origin);
 });
+
+
+/* Navigation stable : chaque sous-menu conserve son état lorsque l'étudiant change de page. */
+(function(){
+  function syncNavigation(){
+    var studio=document.getElementById('portal-workshop');
+    var studioTrigger=document.getElementById('portal-workshop-trigger');
+    if(studio&&studioTrigger){
+      studioTrigger.setAttribute('aria-expanded',studio.classList.contains('open')?'true':'false');
+    }
+    var podcasts=document.getElementById('podcasts-navigation-menu');
+    var podcastsTrigger=document.getElementById('podcasts-navigation-trigger');
+    if(podcasts&&podcastsTrigger){
+      podcastsTrigger.setAttribute('aria-expanded',podcasts.style.display==='none'?'false':'true');
+    }
+  }
+  document.addEventListener('click',function(e){
+    if(e.target.closest('aside')) queueMicrotask(syncNavigation);
+  });
+})();

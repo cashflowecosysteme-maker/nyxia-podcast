@@ -719,6 +719,19 @@ const nyxBookingOriginalWorker = {
 export default {
   ...nyxBookingOriginalWorker,
   async fetch(request,env,ctx){
+    // Métadonnées publiques des personnages : source Super Admin en KV, sans cache.
+    if(new URL(request.url).pathname==='/api/portal/agent-public-profiles'&&request.method==='POST'){
+      const body=await request.json().catch(()=>({}));
+      const auth=await nxOriginalWorker.fetch(new Request(new URL('/api/check-auth',request.url),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:body.token||''})}),env,ctx);
+      const valid=await auth.json().catch(()=>({}));
+      if(!valid.valid)return new Response(JSON.stringify({error:'Session expirée'}),{status:401,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
+      const agents={};
+      for(const key of ['diane','nyxia','eric','nolan']){
+        const profile=await nxPremiumRead(env,key);
+        if(profile){agents[key]={};for(const field of ['name','visibleRole','sub','image'])if(typeof profile[field]==='string')agents[key][field]=profile[field];}
+      }
+      return new Response(JSON.stringify({agents}),{headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
+    }
     // Agenda éditorial : session et propriété du podcast vérifiées côté serveur.
     if(new URL(request.url).pathname.startsWith('/api/editorial/')){
       const response=await handleEditorial(request,env,async token=>{

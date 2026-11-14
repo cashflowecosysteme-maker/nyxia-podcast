@@ -992,33 +992,35 @@ window.openEricPodcastTool=function(key){
 };
 window.returnToEricCalendar=function(){openPodcastSubmenu('agenda');};
 
-/* Bibliothèque logistique — panneau natif, navigation Studio préservée. */
-function openNyxiaLogistique(){
- showPanel('logistique');
- var frame=document.getElementById('logistique-iframe');
- if(frame&&frame.getAttribute('data-loaded')!=='1'){frame.setAttribute('data-loaded','1');frame.src='/bibliotheque-logistique.html';}
- var menu=document.getElementById('portal-workshop');if(menu)menu.classList.add('open');
- var trigger=document.getElementById('portal-workshop-trigger');if(trigger)trigger.setAttribute('aria-expanded','true');
-}
-window.addEventListener('message',function(e){
- if(e.origin!==location.origin||!e.data||e.data.type!=='nyxia_logistique_discuss')return;
- var source=document.getElementById('logistique-iframe');if(!source||e.source!==source.contentWindow)return;
- var name=String(e.data.name||'');
- var catalog=['Audacity','REAPER','OBS Studio','StreamYard','Zencastr','Riverside','Zoom','Google Meet','DaVinci Resolve','CapCut Desktop','GarageBand','Adobe Podcast','Auphonic','Subtitle Edit','Subtitld','YouTube Studio','MacWhisper','Descript','CuePrompter','BIGVU','Teleprompter Mirror','Spotify for Creators','YouTube','Acast','Buzzsprout','Podbean','Canva','Banque d’images et de sons NyXia','Headliner','WeTransfer','LocalSend','HandBrake'];
- if(!catalog.includes(name))return;
- var text='NyXia, peux-tu m’expliquer '+name+' pour mon podcast, ses avantages, ses limites et comment commencer ? Pose-moi une question à la fois pour adapter tes conseils à mon équipement et à mon budget.';
- try{sessionStorage.setItem('nyxia:logistique:pending',text)}catch(_){}
- openAgentTab('nyxia');
- var frame=document.getElementById('agent-iframe');if(frame&&frame.contentWindow)frame.contentWindow.postMessage({type:'nyxia_logistique_open'},location.origin);
-});
 
-/* Navigation explicite vers les parcours existants — sans nouveau chat ni bouton. */
-window.openPodcastGuidance=function(section){
-  if(section!=='nolan'&&section!=='diane')return;
-  openPodcastSubmenu('podcasts');
-  var f=document.getElementById('podcasts-iframe');
-  if(!f)return;
-  function send(){if(f.contentWindow)f.contentWindow.postMessage({type:'nyxia_podcast_guidance',section:section},location.origin)}
-  f.addEventListener('load',send,{once:true});
-  send();
-};
+/* Profils personnages : lecture en direct des modifications du Super Admin.
+   Aucun changement aux parcours, aux menus ou aux chats. */
+(function(){
+  var lastSnapshot='';
+  async function refreshAgentProfiles(){
+    if(document.hidden)return;
+    var token=sessionStorage.getItem('nyxia_token')||'';
+    if(!token)return;
+    try{
+      var res=await fetch('/api/portal/agent-public-profiles',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:token}),cache:'no-store'});
+      if(!res.ok)return;
+      var data=await res.json();
+      if(!data||!data.agents)return;
+      var snapshot=JSON.stringify(data.agents);if(snapshot===lastSnapshot)return;lastSnapshot=snapshot;
+      Object.keys(data.agents).forEach(function(key){
+        var a=data.agents[key],nav=document.getElementById('nav-'+key);if(!nav)return;
+        var name=nav.querySelector('.nav-name'),sub=nav.querySelector('.nav-sub'),img=nav.querySelector('.nav-avatar');
+        if(name&&a.name)name.textContent=a.name;
+        if(sub)sub.textContent=key==='nolan'?'Formateur en Podcast':(a.visibleRole||a.sub||sub.textContent);
+        if(img&&a.image&&/^https:\/\//i.test(a.image))img.src=a.image;
+        if(typeof PORTAL_AGENT_META!=='undefined'&&PORTAL_AGENT_META[key]){
+          Object.assign(PORTAL_AGENT_META[key],a);
+        }
+      });
+    }catch(_){/* conserver le profil affiché si le réseau est indisponible */}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refreshAgentProfiles);else refreshAgentProfiles();
+  window.addEventListener('focus',refreshAgentProfiles);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)refreshAgentProfiles()});
+  setInterval(refreshAgentProfiles,10000);
+})();

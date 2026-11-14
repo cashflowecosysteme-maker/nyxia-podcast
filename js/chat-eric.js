@@ -730,7 +730,7 @@ function nyxiaUserContextText() {
     }
     prompt += '\nCommence maintenant l’accompagnement interactif par UNE question pertinente. Ne demande pas de renvoyer les documents déjà fournis.';
     // Respecte le choix de devise obligatoire avant toute demande financière.
-    sendMessageText(prompt, false, {});
+    sendMessageText(prompt, false, { internalPodcastInstruction: true });
   }
   function nxLiveOffer(host,text) {
     if(nxFlowSelected||nxFlowBusy)return
@@ -755,11 +755,16 @@ function nyxiaUserContextText() {
     var attachmentToSend = _currentAttachment ? JSON.parse(JSON.stringify(_currentAttachment)) : null
     var displayText = text
     if (attachmentToSend) { displayText = text ? text + '\n📎 ' + attachmentToSend.name : '📎 ' + attachmentToSend.name }
-    addUserMessage(displayText)
-    var historyContent = text
-    if (attachmentToSend) { historyContent = (text ? text + '\n' : '') + '[Fichier joint: ' + attachmentToSend.name + ' (' + attachmentToSend.type + ')]' }
-    currentHistory().push({ role: 'user', content: historyContent })
-    saveChatToStorage()
+    // Les consignes de transmission du Dashboard sont internes : ne jamais
+    // les afficher comme une réponse de l’étudiant ni les conserver dans son historique.
+    var internalPodcastInstruction = !!(options && options.internalPodcastInstruction)
+    if (!internalPodcastInstruction) {
+      addUserMessage(displayText)
+      var historyContent = text
+      if (attachmentToSend) { historyContent = (text ? text + '\n' : '') + '[Fichier joint: ' + attachmentToSend.name + ' (' + attachmentToSend.type + ')]' }
+      currentHistory().push({ role: 'user', content: historyContent })
+      saveChatToStorage()
+    }
     if (_currentAttachment) {
       _currentAttachment = null
       var bar = document.getElementById('attach-bar'), fi = document.getElementById('chat-file')

@@ -280,27 +280,16 @@ var PORTAL_AGENT_META = {"diane":{"key":"diane","name":"Diane","sub":"Créatrice
         if(!['adn','recit','lancement'].includes(d.tool)||!/^[a-f0-9-]{36}$/.test(d.projectId||''))return;
         sessionStorage.setItem('nyxia:diane:pending',JSON.stringify({tool:d.tool,projectId:d.projectId,projectTitle:String(d.projectTitle||'').slice(0,120)}));
         openAgentTab('diane');
+        // Le chat Diane peut être en cours de chargement : le contexte est déjà
+        // conservé dans sessionStorage et sera lu au démarrage de chat-diane.js.
+        // Envoyer seulement si la page Diane est déjà chargée.
         var frame=document.getElementById('agent-iframe');
-        if(frame&&frame.contentWindow)frame.contentWindow.postMessage({type:'nyxia_diane_tool_open'},location.origin);
-        return;
-      }
-      if(e.data.type==='nyxia_nolan_pillar_open'&&isPodcast){
-        const d=e.data;
-        if(!['masterprompt','persona','epoc','brandbook'].includes(d.pillar)||!/^[a-f0-9-]{36}$/.test(d.projectId||''))return;
-        try {
-          const u=JSON.parse(localStorage.getItem('nyxia_user_context')||'{}');
-          localStorage.setItem('nyxia:nolan:active:'+String(u.email||'').toLowerCase(),d.projectId);
-          sessionStorage.setItem('nyxia:nolan:pending-pillar',JSON.stringify({pillar:d.pillar,projectId:d.projectId,projectTitle:String(d.projectTitle||'').slice(0,120)}));
-        }catch(_){}
-        openAgentTab('nolan');
-        const frame=document.getElementById('agent-iframe');
-        if(frame){
-          const deliver=()=>{try{frame.contentWindow.postMessage({type:'nyxia_nolan_pillar_open'},location.origin)}catch(_){}};
-          frame.addEventListener('load',deliver,{once:true});
-          if(frame.contentDocument&&frame.contentDocument.readyState==='complete')deliver();
+        if(frame&&frame.contentWindow&&frame.getAttribute('data-agent')==='diane'&&frame.dataset.dianeReady==='1'){
+          frame.contentWindow.postMessage({type:'nyxia_diane_tool_open',tool:d.tool,projectId:d.projectId,projectTitle:d.projectTitle},location.origin);
         }
         return;
       }
+      if(e.data.type==='nyxia_nolan_pillar_open'&&isPodcast){var np=e.data;if(!['masterprompt','persona','epoc','brandbook'].includes(np.pillar)||!/^[a-f0-9-]{36}$/.test(np.projectId||''))return;sessionStorage.setItem('nyxia:nolan:pending-pillar',JSON.stringify({pillar:np.pillar,projectId:np.projectId,projectTitle:String(np.projectTitle||'').slice(0,120)}));openAgentTab('nolan');var nf=document.getElementById('agent-iframe');if(nf&&nf.contentWindow)setTimeout(function(){nf.contentWindow.postMessage({type:'nyxia_nolan_pillar_open'},location.origin)},350);return;}
       if(e.data.type==='nyxia_nolan_open'&&isPodcast){openAgentTab('nolan');return;}
       if(e.data.type==='nyxia_podcasts_open'&&isNolan){openUniversePage('podcasts');return;}
     })
@@ -545,8 +534,10 @@ var PORTAL_AGENT_META = {"diane":{"key":"diane","name":"Diane","sub":"Créatrice
         var current = iframe.getAttribute('data-agent') || ''
         if (current !== key) {
           iframe.setAttribute('data-agent', key)
+          iframe.dataset.dianeReady='0';
           iframe.src = base + '&_=' + Date.now()
         iframe.onload = function() {
+          iframe.dataset.dianeReady='1';
           try {
             iframe.contentWindow.postMessage({
               type:'nyxia_user_context',
@@ -560,24 +551,6 @@ var PORTAL_AGENT_META = {"diane":{"key":"diane","name":"Diane","sub":"Créatrice
 
       closeMobileMenu()
     }
-
-
-    // Exposer la navigation depuis la portée où openAgentTab existe réellement.
-    // Les boutons HTML du menu Mes Podcasts utilisent cette fonction globale.
-    window.openPodcastGuidance = function(section) {
-      if (section !== 'nolan' && section !== 'diane') return;
-      // Mes Podcasts est un espace de travail, PAS le chat général.
-      openPodcastSubmenu('podcasts');
-      var frame = document.getElementById('podcasts-iframe');
-      if (!frame) return;
-      var deliver = function() {
-        if (frame.contentWindow) frame.contentWindow.postMessage(
-          {type:'nyxia_podcast_guidance', section:section}, location.origin);
-      };
-      // Attendre le chargement initial de Mes Podcasts si nécessaire.
-      frame.addEventListener('load', deliver, {once:true});
-      if (frame.contentDocument && frame.contentDocument.readyState === 'complete') deliver();
-    };
 
     function sendSuggestion(text) {
       document.getElementById('suggestions').style.display = 'none'
@@ -1102,3 +1075,15 @@ window.addEventListener('message',function(e){
   });
 })();
 
+/* Accès aux parcours Nolan et Diane depuis Mes Podcasts. */
+window.openPodcastGuidance=function(section){
+  if(section!=='nolan'&&section!=='diane')return;
+  openPodcastSubmenu('podcasts');
+  var frame=document.getElementById('podcasts-iframe');
+  if(!frame)return;
+  function send(){
+    if(frame.contentWindow)frame.contentWindow.postMessage({type:'nyxia_podcast_guidance',section:section},location.origin);
+  }
+  frame.addEventListener('load',send,{once:true});
+  send();
+};

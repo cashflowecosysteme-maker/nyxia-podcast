@@ -1070,12 +1070,7 @@ window.addEventListener('message',function(e){
 /* Accès aux parcours Nolan et Diane depuis Mes Podcasts. */
 window.openPodcastGuidance=function(section){
   if(section!=='nolan'&&section!=='diane')return;
-  openPodcastSubmenu('podcasts');
-  var frame=document.getElementById('podcasts-iframe');
-  if(!frame)return;
-  function send(){
-    if(frame.contentWindow)frame.contentWindow.postMessage({type:'nyxia_podcast_guidance',section:section},location.origin);
-  }
-  frame.addEventListener('load',send,{once:true});
-  send();
+  // Ouvrir directement le personnage dans le chat natif du Dashboard.
+  // Ne modifie ni le podcast actif ni les documents enregistrés.
+  openAgentTab(section);
 };

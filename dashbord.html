@@ -12,8 +12,6 @@
   <link rel="icon" type="image/png" href="/images/FavIcon.png">
 
   <link rel="stylesheet" href="/css/dashboard.css">
-<style>
-</style>
 </head>
 <body>
 
@@ -44,18 +42,7 @@
       <!-- PERSONNAGES DU PORTAIL — GÉNÉRÉS PAR LE SUPER ADMIN 4 -->
       <div class="sidebar-section">
         <div class="sidebar-label">Mes Conversations</div>
-        <div class="nav-item active" id="nav-diane" onclick="openAgentTab('diane')"><img class="nav-avatar" src="https://d1yei2z3i6k35z.cloudfront.net/1872133/6ab6894db52533.17783154_Diane.png" alt="Diane"><span class="nav-text"><span class="nav-name">Diane</span><span class="nav-sub">Créatrice Univers NyXia ~ Directrice</span></span><span class="nav-arrow">›</span></div><div class="nav-item" id="nav-nyxia" onclick="openAgentTab('nyxia')"><img class="nav-avatar" src="https://d1yei2z3i6k35z.cloudfront.net/1872133/6ab6894dc95332.12543838_NyXia.png" alt="NyXia"><span class="nav-text"><span class="nav-name">NyXia</span><span class="nav-sub">Assistante technologique</span></span><span class="nav-arrow">›</span></div><div class="nav-item" id="nav-eric" onclick="openAgentTab('eric')"><img class="nav-avatar" src="https://d1yei2z3i6k35z.cloudfront.net/1872133/6ab6894dc705b0.51216272_Eric.png" alt="Éric"><span class="nav-text"><span class="nav-name">Éric</span><span class="nav-sub">CashFlow &amp; Monétisation</span></span><span class="nav-arrow">›</span></div><div class="nav-item" id="nav-nolan" onclick="openAgentTab('nolan')"><img class="nav-avatar" src="https://d1yei2z3i6k35z.cloudfront.net/1872133/6af609e6130363.54967709_Nolan_base.png" alt="Nolan"><span class="nav-text"><span class="nav-name">Nolan</span><span class="nav-sub">Formateur en Podcast</span></span><span class="nav-arrow">›</span></div>
-        <div class="nav-dropdown" id="portal-workshop">
-          <button type="button" class="nav-dropdown-trigger" id="portal-workshop-trigger" onclick="togglePortalWorkshop()" aria-expanded="false" aria-controls="portal-workshop-menu">
-            <span aria-hidden="true">✨</span>
-            <span class="nav-dropdown-title">Studio</span>
-            <span class="nav-dropdown-chevron" aria-hidden="true">⌄</span>
-          </button>
-          <div class="nav-dropdown-menu" id="portal-workshop-menu">
-            <button type="button" onclick="openPodcastStudio()" style="display:block;width:100%;text-align:left;padding:7px 8px;background:transparent;border:0;border-radius:0;color:#aab4d2;cursor:pointer;font-family:Montserrat,sans-serif;font-size:12px;font-weight:400;line-height:1.45;white-space:normal">🎬 Studio de production</button>
-            <button type="button" onclick="openNyxiaLogistique()" style="display:block;width:100%;text-align:left;padding:7px 8px;background:transparent;border:0;color:#aab4d2;cursor:pointer;font-family:Montserrat,sans-serif;font-size:12px;line-height:1.45">🧰 Bibliothèque logistique</button>
-          </div>
-        </div>
+        <div class="nav-item active" id="nav-diane" onclick="openAgentTab('diane')"><img class="nav-avatar" src="https://d1yei2z3i6k35z.cloudfront.net/1872133/6ab6894db52533.17783154_Diane.png" alt="Diane"><span class="nav-text"><span class="nav-name">Diane</span><span class="nav-sub">Créatrice Univers NyXia ~ Directrice</span></span><span class="nav-arrow">›</span></div><div class="nav-item" id="nav-nyxia" onclick="openAgentTab('nyxia')"><img class="nav-avatar" src="https://d1yei2z3i6k35z.cloudfront.net/1872133/6ab6894dc95332.12543838_NyXia.png" alt="NyXia"><span class="nav-text"><span class="nav-name">NyXia</span><span class="nav-sub">Assistante technologique</span></span><span class="nav-arrow">›</span></div><div class="nav-item" id="nav-eric" onclick="openAgentTab('eric')"><img class="nav-avatar" src="https://d1yei2z3i6k35z.cloudfront.net/1872133/6ab6894dc705b0.51216272_Eric.png" alt="Éric"><span class="nav-text"><span class="nav-name">Éric</span><span class="nav-sub">CashFlow &amp; Monétisation</span></span><span class="nav-arrow">›</span></div><div class="nav-item" id="nav-nolan" onclick="openAgentTab('nolan')"><img class="nav-avatar" src="https://d1yei2z3i6k35z.cloudfront.net/1872133/6af609e6130363.54967709_Nolan_base.png" alt="Nolan"><span class="nav-text"><span class="nav-name">Nolan</span><span class="nav-sub">Expert en création, production et développement de podcasts</span></span><span class="nav-arrow">›</span></div>
       </div>
 
       <div class="sidebar-section">
@@ -74,9 +61,6 @@
           </button>
           <div class="nav-dropdown-menu" id="podcasts-navigation-menu" style="display:none">
             <button type="button" id="nav-podcasts" onclick="openPodcastSubmenu('podcasts')" style="display:block;width:100%;text-align:left;padding:7px 8px;background:transparent;border:0;border-radius:0;color:#aab4d2;cursor:pointer;font-family:Montserrat,sans-serif;font-size:12px;font-weight:400;line-height:1.45;white-space:normal">📁 Ouvrir Mes Podcasts</button>
-            <button type="button" onclick="openPodcastGuidance('nolan')" style="display:block;width:100%;text-align:left;padding:7px 8px;background:transparent;border:0;color:#aab4d2;cursor:pointer;font-family:Montserrat,sans-serif;font-size:12px;line-height:1.45;white-space:normal">🎙️ Ton parcours · Avec Nolan</button>
-            <button type="button" onclick="openPodcastGuidance('diane')" style="display:block;width:100%;text-align:left;padding:7px 8px;background:transparent;border:0;color:#aab4d2;cursor:pointer;font-family:Montserrat,sans-serif;font-size:12px;line-height:1.45;white-space:normal">👑 Avec Diane · Identité et lancement</button>
-            <button type="button" onclick="openEricToolsSection()" style="display:block;width:100%;text-align:left;padding:7px 8px;background:transparent;border:0;color:#aab4d2;cursor:pointer;font-family:Montserrat,sans-serif;font-size:12px;line-height:1.45;white-space:normal">🧰 Les outils d’Éric</button>
             <button type="button" id="nav-agenda" onclick="openPodcastSubmenu('agenda')" style="display:block;width:100%;text-align:left;padding:7px 8px;background:transparent;border:0;border-radius:0;color:#aab4d2;cursor:pointer;font-family:Montserrat,sans-serif;font-size:12px;font-weight:400;line-height:1.45;white-space:normal">📅 Calendrier éditorial</button>
           </div>
         </div>
@@ -84,7 +68,7 @@
           <span class="nav-icon">✨</span> Banque d'images - Sons et Vidéos <span class="nav-arrow">›</span>
         </div>
       </div>
-
+      
       <div class="sidebar-section">
         <div class="sidebar-label">Mon Univers NyXia</div>
         <div class="nav-item" id="nav-parcours" onclick="openUniversePage('parcours')">
@@ -136,9 +120,6 @@
         </div>
       </div>
       <div class="panel" id="panel-medias" style="flex-direction:column"><iframe id="medias-iframe" src="about:blank" style="width:100%;height:100%;border:none;display:block" title="Média"></iframe></div>
-
-      <div class="panel" id="panel-studio" style="flex-direction:column"><iframe id="studio-iframe" src="about:blank" style="width:100%;height:100%;border:none;display:block" title="Studio Podcast"></iframe></div>
-      <div class="panel" id="panel-logistique" style="flex-direction:column"><iframe id="logistique-iframe" src="about:blank" style="width:100%;height:100%;border:none;display:block" title="Bibliothèque logistique NyXia"></iframe></div>
       <div class="panel" id="panel-agenda" style="flex-direction:column"><iframe id="agenda-iframe" src="about:blank" style="width:100%;height:100%;border:none;display:block" title="Agenda Éditorial"></iframe></div>
       <div class="panel" id="panel-podcasts" style="flex-direction:column"><iframe id="podcasts-iframe" src="about:blank" style="width:100%;height:100%;border:none;display:block" title="Mes Podcasts"></iframe></div>
       <!-- 🌌 Mon Parcours — page NyXia interne chargée en iframe -->
@@ -158,29 +139,5 @@
   <script src="/js/starry-bg.js" defer></script>
 
   <script src="/js/dashboard.js"></script>
-
-<script>
-/* Lien unique du Dashboard vers la grille des outils d'Éric. */
-function openEricToolsSection(){
-  if(typeof openPodcastSubmenu !== 'function') return;
-  openPodcastSubmenu('agenda');
-  var frame=document.getElementById('agenda-iframe');
-  if(!frame) return;
-  function focusTools(){
-    try {
-      var doc=frame.contentDocument;
-      var tools=doc && doc.getElementById('eric-tools-section');
-      if(tools){
-        var section=tools.closest('section') || tools;
-        section.scrollIntoView({block:'start',behavior:'instant'});
-        return true;
-      }
-    } catch(e) {}
-    return false;
-  }
-  if(!focusTools()) frame.addEventListener('load',function onLoad(){frame.removeEventListener('load',onLoad);focusTools();},{once:true});
-}
-
-</script>
 </body>
 </html>

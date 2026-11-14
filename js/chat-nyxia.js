@@ -242,6 +242,28 @@ function nyxiaUserContextText() {
     chatInput.addEventListener('input', function() { this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 120) + 'px' })
     chatInput.addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } })
 
+    // Bibliothèque logistique : restituer le logiciel choisi dans le chat officiel.
+    // Aucun appel IA automatique : l'étudiant décide d'envoyer son message.
+    function receiveLogistiqueRequest() {
+      var pending = '';
+      try { pending = sessionStorage.getItem('nyxia:logistique:pending') || ''; } catch (_) {}
+      if (!pending) return;
+      var input = document.getElementById('chat-input');
+      if (!input) return;
+      input.value = pending;
+      input.dispatchEvent(new Event('input', {bubbles:true}));
+      try { sessionStorage.removeItem('nyxia:logistique:pending'); } catch (_) {}
+      var suggestions = document.getElementById('suggestions');
+      if (suggestions) suggestions.style.display = 'none';
+      input.focus();
+    }
+    window.addEventListener('message', function(event) {
+      if (event.origin !== location.origin || event.source !== parent) return;
+      if (event.data && event.data.type === 'nyxia_logistique_open') receiveLogistiqueRequest();
+    });
+    receiveLogistiqueRequest();
+
+
     var fi = document.getElementById('chat-file')
     if (fi) fi.addEventListener('change', function() {
       var f = this.files[0]; if (!f) return

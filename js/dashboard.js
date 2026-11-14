@@ -284,6 +284,23 @@ var PORTAL_AGENT_META = {"diane":{"key":"diane","name":"Diane","sub":"Créatrice
         if(frame&&frame.contentWindow)frame.contentWindow.postMessage({type:'nyxia_diane_tool_open'},location.origin);
         return;
       }
+      if(e.data.type==='nyxia_nolan_pillar_open'&&isPodcast){
+        const d=e.data;
+        if(!['masterprompt','persona','epoc','brandbook'].includes(d.pillar)||!/^[a-f0-9-]{36}$/.test(d.projectId||''))return;
+        try {
+          const u=JSON.parse(localStorage.getItem('nyxia_user_context')||'{}');
+          localStorage.setItem('nyxia:nolan:active:'+String(u.email||'').toLowerCase(),d.projectId);
+          sessionStorage.setItem('nyxia:nolan:pending-pillar',JSON.stringify({pillar:d.pillar,projectId:d.projectId,projectTitle:String(d.projectTitle||'').slice(0,120)}));
+        }catch(_){}
+        openAgentTab('nolan');
+        const frame=document.getElementById('agent-iframe');
+        if(frame){
+          const deliver=()=>{try{frame.contentWindow.postMessage({type:'nyxia_nolan_pillar_open'},location.origin)}catch(_){}};
+          frame.addEventListener('load',deliver,{once:true});
+          if(frame.contentDocument&&frame.contentDocument.readyState==='complete')deliver();
+        }
+        return;
+      }
       if(e.data.type==='nyxia_nolan_open'&&isPodcast){openAgentTab('nolan');return;}
       if(e.data.type==='nyxia_podcasts_open'&&isNolan){openUniversePage('podcasts');return;}
     })

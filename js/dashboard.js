@@ -275,6 +275,15 @@ var PORTAL_AGENT_META = {"diane":{"key":"diane","name":"Diane","sub":"Créatrice
       var isNolan=Array.from(document.querySelectorAll('iframe')).some(function(f){
         return f.contentWindow===e.source && /chat-nolan\.html/.test(f.getAttribute('src')||'');
       });
+      if(e.data.type==='nyxia_diane_ready'&&isPodcast){
+        var df=document.getElementById('agent-iframe');
+        if(df&&df.contentWindow===e.source&&df.getAttribute('data-agent')==='diane'){
+          df.dataset.dianeReady='1';
+          var pendingDiane=sessionStorage.getItem('nyxia:diane:pending');
+          if(pendingDiane){try{var dp=JSON.parse(pendingDiane);df.contentWindow.postMessage({type:'nyxia_diane_tool_open',tool:dp.tool,projectId:dp.projectId,projectTitle:dp.projectTitle},location.origin)}catch(_){}}
+        }
+        return;
+      }
       if(e.data.type==='nyxia_diane_tool_open'&&isPodcast){
         var d=e.data;
         if(!['adn','recit','lancement'].includes(d.tool)||!/^[a-f0-9-]{36}$/.test(d.projectId||''))return;
@@ -538,6 +547,9 @@ var PORTAL_AGENT_META = {"diane":{"key":"diane","name":"Diane","sub":"Créatrice
           iframe.src = base + '&_=' + Date.now()
         iframe.onload = function() {
           iframe.dataset.dianeReady='1';
+          if(key==='diane'){
+            try{var pd=JSON.parse(sessionStorage.getItem('nyxia:diane:pending')||'null');if(pd)iframe.contentWindow.postMessage({type:'nyxia_diane_tool_open',tool:pd.tool,projectId:pd.projectId,projectTitle:pd.projectTitle},location.origin)}catch(_){}
+          }
           try {
             iframe.contentWindow.postMessage({
               type:'nyxia_user_context',

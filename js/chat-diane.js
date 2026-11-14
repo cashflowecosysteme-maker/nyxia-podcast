@@ -155,7 +155,7 @@ function nyxiaUserContextText() {
       else if (item.role === 'assistant') addBotMessage(item.content)
     })
     var sug = document.getElementById('suggestions')
-    if (sug && list.length) sug.style.display = 'none'
+    if (sug && list.length) sug.style.display = 'flex'
   }
   var isSpeaking = false, _currentAttachment = null
 
@@ -203,6 +203,14 @@ function nyxiaUserContextText() {
       b.addEventListener('click', function() { useSuggestion(b) })
       box.appendChild(b)
     })
+    // Accès permanent à l’outil du personnage, indépendamment des suggestions Super Admin.
+    var fixedAction = document.createElement('button')
+    fixedAction.type = 'button'
+    fixedAction.className = 'sug-chip'
+    fixedAction.textContent = 'Plan de lancement'
+    fixedAction.setAttribute('data-message', 'Je veux travailler sur le Plan de lancement de mon podcast, une étape à la fois.')
+    fixedAction.addEventListener('click', function() { useSuggestion(fixedAction) })
+    box.appendChild(fixedAction)
     box.style.display = box.children.length ? 'flex' : 'none'
   }
 
@@ -696,7 +704,73 @@ function nyxiaUserContextText() {
   window.addEventListener('focus',function(){nxLiveRefresh()})
   setTimeout(function(){nxLiveRefresh()},0)
 
+  var nxDianeTool=null,nxDianeProject='',nxDianeTitle='';
+  function nxDianeActiveProject(){
+    var u={};try{u=JSON.parse(localStorage.getItem('nyxia_user_context')||'{}')}catch(_){}
+    return localStorage.getItem('nyxia:nolan:active:'+String(u.email||'').toLowerCase())||'';
+  }
+  function nxDianeSetTool(t,id,title){
+    if(!['adn','recit','lancement'].includes(t)||!/^[a-f0-9-]{36}$/.test(id||''))return;
+    nxDianeTool=t;nxDianeProject=id;nxDianeTitle=title||'';
+    sessionStorage.setItem('nyxia:diane:tool',JSON.stringify({tool:t,projectId:id,projectTitle:nxDianeTitle}));
+    if(!chatHistories[_currentAgent]||!chatHistories[_currentAgent].length){
+      nxDianeStart();
+    }else{
+      nxDianeStart();
+    }
+  }
+  function nxDianeStart(){
+    if(!nxDianeTool)return;
+    var titles={adn:'ADN de ton podcast',recit:'Ton récit d’origine',lancement:'Plan de lancement'};
+    var line='On travaille maintenant « '+titles[nxDianeTool]+' » pour mon podcast'+(nxDianeTitle?' « '+nxDianeTitle+' »':'')+'. Accompagne-moi une question à la fois, en tenant compte de mes documents existants. Quelle est ta première question ?';
+    nxSendMessageTextOriginal(line,false,{});
+  }
+  function nxDianeRestore(){
+    var d=null;try{d=JSON.parse(sessionStorage.getItem('nyxia:diane:pending')||'null')}catch(_){}
+    if(d){sessionStorage.removeItem('nyxia:diane:pending');window.__nyxiaDianeStarted=true;nxDianeSetTool(d.tool,d.projectId,d.projectTitle);return;}
+    try{d=JSON.parse(sessionStorage.getItem('nyxia:diane:tool')||'null')}catch(_){}
+    if(d&&nxDianeActiveProject()===d.projectId){nxDianeTool=d.tool;nxDianeProject=d.projectId;nxDianeTitle=d.projectTitle||'';}
+    var params=new URLSearchParams(location.search),t=params.get('outil'),id=params.get('podcast');
+    if(t&&id)nxDianeSetTool(t,id,'');
+  }
+  window.addEventListener('message',function(e){
+    if(e.origin!==location.origin||e.source!==window.parent||!e.data||e.data.type!=='nyxia_diane_tool_open')return;
+    var d=e.data;
+    if(!['adn','recit','lancement'].includes(d.tool)||!/^[a-f0-9-]{36}$/.test(d.projectId||''))return;
+    var pending=null;try{pending=JSON.parse(sessionStorage.getItem('nyxia:diane:pending')||'null')}catch(_){}
+    if(pending&&pending.tool===d.tool&&pending.projectId===d.projectId){sessionStorage.removeItem('nyxia:diane:pending')}
+    // Ne pas relancer le même outil plusieurs fois pendant le chargement.
+    if(nxDianeTool===d.tool&&nxDianeProject===d.projectId&&window.__nyxiaDianeStarted)return;
+    window.__nyxiaDianeStarted=true;
+    nxDianeSetTool(d.tool,d.projectId,d.projectTitle||'');
+  });
+  setTimeout(function(){
+    nxDianeRestore();
+    try{if(window.parent!==window)window.parent.postMessage({type:'nyxia_diane_ready'},location.origin)}catch(_){}
+  },300);
+  function nxDianeRecognize(text){
+    if(nxDianeTool)return;
+    var v=String(text||'').toLowerCase(),t= /récit d.origine|mon histoire fondatrice/.test(v)?'recit':/plan de lancement|lancer mon podcast/.test(v)?'lancement':/adn (de |du |pour )?(mon |ton )?podcast/.test(v)?'adn':'';
+    var id=nxDianeActiveProject();if(t&&/^[a-f0-9-]{36}$/.test(id)){nxDianeTool=t;nxDianeProject=id;nxDianeTitle='';sessionStorage.setItem('nyxia:diane:tool',JSON.stringify({tool:t,projectId:id}));}
+  }
+  function nxDianeSave(text){
+    if(!nxDianeTool||!nxDianeProject)return Promise.resolve(false);
+    if(!/^(?:diane[, ]*)?(?:enregistre|sauvegarde|conserve)(?: ce travail| le travail| le document| le résultat| mon travail| notre travail)?[.! ]*$/i.test(String(text||'').trim()))return Promise.resolve(false);
+    var h=chatHistories[_currentAgent]||[];
+    var result=h.filter(m=>m.role==='assistant').slice(-1)[0];
+    if(!result||!result.content){addBotMessage('Je n’ai pas encore de contenu à enregistrer.');return Promise.resolve(true);}
+    var token=sessionToken||sessionStorage.getItem('nyxia_token')||'';
+    var endpoint='/api/nolan/projects/'+nxDianeProject+'/documents/'+nxDianeTool;
+    return fetch(endpoint,{headers:{Authorization:'Bearer '+token}}).then(r=>{if(!r.ok)throw Error('Lecture du document impossible.');return r.json()}).then(d=>{
+      var old=d.document||{};
+      return fetch(endpoint,{method:'PUT',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({content:result.content,status:'brouillon',expectedVersion:Number(old.version||0)})});
+    }).then(r=>{if(!r.ok)throw Error('Enregistrement refusé.');return r.json()}).then(()=>{addBotMessage('Ton travail est enregistré dans « Mes Podcasts », rubrique '+({adn:'ADN du podcast',recit:'Ton récit d’origine',lancement:'Plan de lancement'}[nxDianeTool])+'.');return true}).catch(e=>{addBotMessage('Je n’ai pas pu enregistrer le document : '+e.message);return true});
+  }
   function nxSendMessageTextOriginal(text, fromVoice, options) {
+    nxDianeRecognize(text);
+    return nxDianeSave(text).then(function(saved){if(saved)return;return nxDianeSendActual(text,fromVoice,options)});
+  }
+  function nxDianeSendActual(text,fromVoice,options){
     _inputWasVoice = !!fromVoice
     var attachmentToSend = _currentAttachment ? JSON.parse(JSON.stringify(_currentAttachment)) : null
     var displayText = text
@@ -724,7 +798,7 @@ function nyxiaUserContextText() {
     }
     fetch('/api/chat', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text, history: chatHistories[requestAgent].slice(-10), userName: clientName, agent: requestAgent, attachment: attachmentToSend, token: sessionToken })
+      body: JSON.stringify({ message: text, history: chatHistories[requestAgent].slice(-10), userName: clientName, agent: requestAgent, attachment: attachmentToSend, token: sessionToken, projectId:nxDianeProject, dianeTool:nxDianeTool })
     })
     .then(function(r){ return r.json() })
     .then(function(data) {

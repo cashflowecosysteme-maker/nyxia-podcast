@@ -703,85 +703,50 @@ function nyxiaUserContextText() {
   }
 
 
-  /* Questionnaire officiel du cahier de réflexion : 22 questions, une à la fois.
-     État isolé par étudiant et par podcast ; aucune modification du Dashboard. */
+  /* Les 22 questions du cahier ORIGINAL servent les quatre piliers, jamais un questionnaire autonome. */
   var NX_CAHIER_QUESTIONS = [{"number": 1, "title": "Ta légitimité", "question": "Qu'est-ce qui te rend légitime sur ton sujet? Formation, années de pratique, résultats, nombre de clients — ou ce que tu as traversé toi-même.", "document": "masterprompt"}, {"number": 2, "title": "La transformation que tu apportes", "question": "En une phrase : c'est quoi la grande transformation que ton podcast apporte à tes auditeurs?", "document": "masterprompt"}, {"number": 3, "title": "Ta méthode", "question": "As-tu une méthode, un cadre ou un modèle qui est à toi? Un nom, des étapes, des piliers. Si oui, nomme-le et décris-le.", "document": "masterprompt"}, {"number": 4, "title": "Ta proposition de valeur unique", "question": "Ta proposition de valeur unique, en une phrase : qu'est-ce que TU fais que personne d'autre dans ton marché ne fait de la même façon?", "document": "masterprompt"}, {"number": 5, "title": "Ta phrase signature", "question": "Ta phrase signature — la phrase qui résume le mieux ce que tu défends?", "document": "masterprompt"}, {"number": 6, "title": "Ton auditeur idéal, en bref", "question": "Qui est ton auditeur idéal? Trois lignes suffisent ici — le détail vit dans ton Persona et ton EPOC. Dis-moi sa peur dominante et son objectif numéro un.", "document": "masterprompt"}, {"number": 7, "title": "Ton catalogue d'offres", "question": "Ton catalogue complet : chaque offre, son prix, sa garantie, et le prochain pas concret pour l'acheter. Nomme-les toutes, du gratuit au haut de gamme.", "document": "masterprompt"}, {"number": 8, "title": "Tes preuves", "question": "Tes preuves : jusqu'à 5 résultats chiffrés (les tiens ou ceux de tes clients) et jusqu'à 3 témoignages de 2 lignes. Colle-les tels quels, ne les reformule pas.", "document": "masterprompt"}, {"number": 9, "title": "Une vraie personne", "question": "Pense à UNE vraie personne que tu sers — ou que tu veux servir. Son prénom (vrai ou inventé), et pourquoi elle plutôt qu'une autre?", "document": "persona"}, {"number": 10, "title": "Son problème et ce qu'il lui coûte", "question": "Le problème qu'elle veut régler, dans SES mots à elle — pas les tiens. Et ce qu'il lui coûte VRAIMENT : en temps, en argent, en fierté?", "document": "persona"}, {"number": 11, "title": "Ce qu'elle a déjà essayé", "question": "Qu'est-ce qu'elle a déjà essayé pour régler ça? Et pourquoi ça n'a pas tenu?", "document": "persona"}, {"number": 12, "title": "Ce qu'elle n'admettrait pas en public", "question": "Ce qu'elle n'admettrait jamais en public à propos de ce problème — ce qu'elle ne dit qu'à elle-même?", "document": "persona"}, {"number": 13, "title": "Où elle s'informe", "question": "Où elle s'informe? Donne des noms précis : podcasts, chaînes, livres, groupes, comptes.", "document": "persona"}, {"number": 14, "title": "Ce qui la ferait hésiter", "question": "Qu'est-ce qui la ferait hésiter à acheter ton offre?", "document": "persona"}, {"number": 15, "title": "Ses mots exacts", "question": "Dernière, et la plus précieuse : trois phrases qu'elle dit VRAIMENT. Entendues dans un appel, un commentaire, un message privé. Mot pour mot.", "document": "persona"}, {"number": 16, "title": "Trois vrais cas", "question": "Trois vraies personnes de ton audience, et une phrase que chacune t’a dite, mot pour mot.", "document": "epoc"}, {"number": 17, "title": "300 mots de toi, bruts", "question": "Le plus important, et c'est la question qui fait toute la différence : donne-moi 300 mots de toi, bruts. Un bout de transcription d'un épisode, d'une vidéo, d'un live, d'un webinaire — n'importe quoi où c'est toi qui parles. Trois à cinq minutes d'enregistrement, ça donne les 300 mots. Ne nettoie rien : tes répétitions et tes hésitations sont ta signature. Si tu n'as rien d'enregistré, écris-moi 300 mots comme si tu parlais à ton auditeur idéal, là, maintenant — et n'écris pas « bien », écris comme tu parles.", "document": "brandbook"}, {"number": 18, "title": "Tes expressions et tes interdits", "question": "Trois mots ou expressions qui sont VRAIMENT à toi — que tes auditeurs reconnaîtraient. Et trois mots ou tournures que tu ne veux JAMAIS voir sortir de ta bouche ou de tes textes.", "document": "brandbook"}, {"number": 19, "title": "Ce que ton auditeur obtient", "question": "À la fin d'un épisode, ton auditeur repart avec QUOI? Pas ce qu'il ressent — ce qu'il obtient. Un résultat concret, en quelques mots.", "document": "brandbook"}, {"number": 20, "title": "Tes associations", "question": "Nomme tes trois derniers invités, ou tes trois dernières références citées. Mis côte à côte, ils disent quoi de ton podcast? Et à l'inverse : avec quoi ton podcast ne doit JAMAIS être associé?", "document": "brandbook"}, {"number": 21, "title": "Tes couleurs existantes", "question": "As-tu déjà des couleurs de marque? (site web, logo d'entreprise existant) Si oui, lesquelles?", "document": "brandbook"}, {"number": 22, "title": "Tes inspirations visuelles", "question": "Quels podcasts ou marques t'inspirent visuellement? Même hors de ton secteur.", "document": "brandbook"}];
-  function nxCahierKey(){
-    var identity=String(NYXIA_USER.email||clientEmail||clientName||'session').toLowerCase();
-    return 'nyxia_nolan_cahier22_v1:'+identity+':'+(nxActivePodcast()||'sans-podcast');
+  var NX_PILIERS = [
+    {id:'masterprompt',name:'Masterprompt',definition:'Document d’instructions central du podcast.'},
+    {id:'persona',name:'Persona',definition:'Portrait précis et humain de l’auditeur idéal.'},
+    {id:'epoc',name:'EPOC',definition:'Engagement (accroche), Problème & Promesse, Outils & Ouverture, Conversion & Clôture.'},
+    {id:'brandbook',name:'BrandBook',definition:'Identité verbale, visuelle et sonore du podcast.'}
+  ];
+  function nxPiliersKey(){
+    var u=String(NYXIA_USER.email||clientEmail||clientName||'session').toLowerCase();
+    return 'nyxia:nolan:piliers:'+u+':'+(nxActivePodcast()||'sans-podcast');
   }
-  function nxCahierRead(){try{return JSON.parse(localStorage.getItem(nxCahierKey())||'null')}catch(_){return null}}
-  function nxCahierWrite(v){try{localStorage.setItem(nxCahierKey(),JSON.stringify(v))}catch(_){}}
-  function nxCahierBot(message){
-    addBotMessage(message);
-    chatHistories[_currentAgent].push({role:'assistant',content:message});
-    saveChatToStorage();
+  function nxPiliersRead(){try{return JSON.parse(localStorage.getItem(nxPiliersKey())||'{}')}catch(e){return {}}}
+  function nxPiliersWrite(s){try{localStorage.setItem(nxPiliersKey(),JSON.stringify(s))}catch(e){}}
+  function nxPiliersStage(message){
+    var t=String(message||'').toLowerCase();
+    if(/brand.?book|bible de marque/.test(t))return 'brandbook';
+    if(/\bepoc\b|structure d.es? [ée]pisodes?/.test(t))return 'epoc';
+    if(/persona|auditeur id[ée]al/.test(t))return 'persona';
+    if(/master.?prompt|prompt ma[îi]tre/.test(t))return 'masterprompt';
+    return '';
   }
-  function nxCahierUser(message){
-    addUserMessage(message);
-    chatHistories[_currentAgent].push({role:'user',content:message});
-    saveChatToStorage();
+  function nxPiliersContext(message){
+    var state=nxPiliersRead();
+    var selected=nxPiliersStage(message);
+    if(selected){state.active=selected;nxPiliersWrite(state)}
+    if(!state.active && !/22 questions|quatre piliers|4 piliers|cahier de r[ée]flexion/i.test(message))return '';
+    var active=state.active||'masterprompt';
+    var pillar=NX_PILIERS.find(function(p){return p.id===active})||NX_PILIERS[0];
+    var q=NX_CAHIER_QUESTIONS.filter(function(x){return x.document===active});
+    return '[CONSIGNES PÉDAGOGIQUES NOLAN — contexte interne, ne pas afficher]\n'+
+      'Tu es le formateur conversationnel officiel Nolan. Le parcours comporte exactement quatre piliers dans cet ordre : Masterprompt, Persona, EPOC, BrandBook. '+
+      'Le pilier courant est '+pillar.name+' : '+pillar.definition+' '+
+      'Les 22 questions fournies sont des ressources de clarification réparties entre les piliers, PAS un questionnaire autonome. '+
+      'Échange naturellement : demande une seule précision utile à la fois, explique, reformule, vérifie la compréhension et laisse l’étudiant corriger. '+
+      'N’avance pas mécaniquement à la question suivante. Ne saute pas de pilier sans accord. '+
+      'À la demande de l’étudiant, rédige le document COMPLET du pilier courant à partir de ses réponses et du contexte accessible, sans inventer les informations manquantes. '+
+      'Pour EPOC, utilise les quatre étapes exactes : Engagement, Problème & Promesse, Outils & Ouverture, Conversion & Clôture. '+
+      'Pour le BrandBook, couvre l’identité verbale, visuelle et sonore. '+
+      'Si une information n’a pas été fournie, signale-le et pose une question ciblée. '+
+      'Questions de référence du pilier courant (textes originaux, à utiliser selon les besoins, sans les réciter toutes) :\n'+
+      q.map(function(x){return x.number+'. '+x.title+' : '+x.question}).join('\n');
   }
-  function nxCahierQuestion(i){
-    var q=NX_CAHIER_QUESTIONS[i];
-    return 'Question '+q.number+'/22 — '+q.title+'\n\n'+q.question;
-  }
-  async function nxCahierSave(state){
-    var project=nxActivePodcast();
-    if(!project||!sessionToken)return false;
-    var base='/api/nolan/projects/'+encodeURIComponent(project)+'/documents/notes';
-    var headers={'Authorization':'Bearer '+sessionToken,'Content-Type':'application/json'};
-    var response=await fetch(base,{headers:headers});
-    if(!response.ok)throw Error('Lecture des notes impossible');
-    var old=(await response.json()).document||{content:'',version:0};
-    var heading='## Cahier de réflexion — 22 questions (Nolan)';
-    var existing=String(old.content||'');
-    var pos=existing.indexOf(heading);
-    if(pos>=0)existing=existing.slice(0,pos).trimEnd();
-    var content=heading+'\n\n'+NX_CAHIER_QUESTIONS.map(function(q,i){
-      return '### '+q.number+'. '+q.title+'\n'+q.question+'\n\nRéponse : '+(state.answers[i]||'[À compléter]');
-    }).join('\n\n')+'\n';
-    response=await fetch(base,{method:'PUT',headers:headers,body:JSON.stringify({content:(existing?existing+'\n\n':'')+content,status:'brouillon',expectedVersion:old.version||0})});
-    if(!response.ok)throw Error('Enregistrement des réponses impossible');
-    return true;
-  }
-  function nxCahierHandle(text){
-    var t=String(text||'').trim();
-    var state=nxCahierRead();
-    var start=/\b(?:22 questions|cahier de r[ée]flexion|questionnaire de nolan)\b/i.test(t);
-    if(start){
-      nxCahierUser(t);
-      if(!state||state.index>=22||/recommencer|reprendre depuis le d[ée]but/i.test(t))state={index:0,answers:{},completed:false};
-      state.paused=false;nxCahierWrite(state);
-      nxCahierBot(nxCahierQuestion(state.index));
-      return true;
-    }
-    if(!state||state.completed||state.index>=22)return false;
-    if(/^(?:arr[êe]ter|pause|suspendre)(?: le questionnaire)?[.! ]*$/i.test(t)){
-      nxCahierUser(t);nxCahierBot('Ton parcours est conservé. Quand tu voudras reprendre, demande-moi les 22 questions du cahier.');
-      state.paused=true;nxCahierWrite(state);return true;
-    }
-    if(state.paused)return false;
-    if(!t||typeof _currentAttachment!=='undefined'&&_currentAttachment)return false;
-    nxCahierUser(t);
-    state.answers[state.index]=t;
-    state.index+=1;
-    nxCahierWrite(state);
-    if(state.index<22){nxCahierBot(nxCahierQuestion(state.index));}
-    else{
-      state.completed=true;nxCahierWrite(state);
-      nxCahierBot('Tu as répondu aux 22 questions du cahier. Je conserve tes réponses dans ce parcours.');
-    }
-    nxCahierSave(state).then(function(saved){
-      if(state.completed&&saved)nxCahierBot('Tes réponses sont également enregistrées dans les notes de ton podcast.');
-    }).catch(function(){
-      nxCahierBot('Je n’ai pas pu synchroniser tes réponses avec Mes Podcasts. Elles restent conservées dans ce navigateur.');
-    });
-    return true;
-  }
-
   function sendMessageText(text, fromVoice, options) {
-    if(nxCahierHandle(text))return Promise.resolve();
     if(nxFlowBusy)return
     if (nxLiveSending) return
     nxLiveSending = true
@@ -868,9 +833,14 @@ function nyxiaUserContextText() {
       requestImageGeneration(requestedImagePrompt, requestAgent, btn)
       return
     }
+    var nxHistoryForApi = chatHistories[requestAgent].slice(-10);
+    if(requestAgent==='nolan'){
+      var nxGuide=nxPiliersContext(text);
+      if(nxGuide)nxHistoryForApi=[{role:'user',content:nxGuide}].concat(nxHistoryForApi);
+    }
     fetch('/api/chat', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text, history: chatHistories[requestAgent].slice(-10), userName: clientName, agent: requestAgent, attachment: attachmentToSend, projectId: nxProjectId, token: sessionToken })
+      body: JSON.stringify({ message: text, history: nxHistoryForApi, userName: clientName, agent: requestAgent, attachment: attachmentToSend, projectId: nxProjectId, token: sessionToken })
     })
     .then(function(r){ return r.json().then(function(d){if(!r.ok)throw Error(d.error||'Erreur '+r.status);return d}) })
     .then(function(data) {

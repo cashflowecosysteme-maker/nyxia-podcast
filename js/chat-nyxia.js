@@ -155,7 +155,7 @@ function nyxiaUserContextText() {
       else if (item.role === 'assistant') addBotMessage(item.content)
     })
     var sug = document.getElementById('suggestions')
-    if (sug && list.length) sug.style.display = 'none'
+    if (sug && list.length) sug.style.display = 'flex'
   }
   var isSpeaking = false, _currentAttachment = null
 
@@ -203,6 +203,14 @@ function nyxiaUserContextText() {
       b.addEventListener('click', function() { useSuggestion(b) })
       box.appendChild(b)
     })
+    // Accès permanent à l’outil du personnage, indépendamment des suggestions Super Admin.
+    var fixedAction = document.createElement('button')
+    fixedAction.type = 'button'
+    fixedAction.className = 'sug-chip'
+    fixedAction.textContent = 'Studio Logiciel'
+    fixedAction.setAttribute('data-message', 'Présente-moi le Studio Logiciel du podcast et accompagne-moi dans le choix et l’utilisation des logiciels de création, enregistrement, montage et diffusion.')
+    fixedAction.addEventListener('click', function() { useSuggestion(fixedAction) })
+    box.appendChild(fixedAction)
     box.style.display = box.children.length ? 'flex' : 'none'
   }
 
@@ -695,20 +703,6 @@ function nyxiaUserContextText() {
   }
   window.addEventListener('focus',function(){nxLiveRefresh()})
   setTimeout(function(){nxLiveRefresh()},0)
-
-  /* Demande issue de la bibliothèque : conversation réelle dans le chat NyXia officiel. */
-  function nyxiaConsumeLogistique(){
-    var pending='';try{pending=sessionStorage.getItem('nyxia:logistique:pending')||''}catch(_){}
-    if(!pending||_currentAgent!=='nyxia')return;
-    if(typeof sessionToken==='undefined'||!sessionToken)return;
-    var btn=document.getElementById('btn-send');if(btn&&btn.disabled)return;
-    try{sessionStorage.removeItem('nyxia:logistique:pending')}catch(_){}
-    sendMessageText(pending,false,{});
-  }
-  window.addEventListener('message',function(e){
-    if(e.origin===location.origin&&e.data&&e.data.type==='nyxia_logistique_open')setTimeout(nyxiaConsumeLogistique,250);
-  });
-  setTimeout(nyxiaConsumeLogistique,1100);
 
   function nxSendMessageTextOriginal(text, fromVoice, options) {
     _inputWasVoice = !!fromVoice

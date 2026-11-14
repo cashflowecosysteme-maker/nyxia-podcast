@@ -670,7 +670,39 @@ function nyxiaUserContextText() {
     }).catch(function(){return false})
   }
 
+  // Choix obligatoire de devise avant le premier échange financier avec Éric.
+  // Aucun montant n'est présumé et le choix est conservé localement par étudiant.
+  var nxEricCurrencyKey = 'nyxia_eric_currency_' + (NYXIA_USER.email || sessionStorage.getItem('nyxia_username') || 'session');
+  var nxEricCurrency = '';
+  try { nxEricCurrency = localStorage.getItem(nxEricCurrencyKey) || ''; } catch (_) {}
+  var nxEricPending = null;
+  function nxEricCurrencyPrompt() {
+    if (document.getElementById('nx-eric-currency-choice')) return;
+    var host = document.getElementById('chat-messages-eric');
+    if (!host) { addBotMessage('Avant de commencer, dans quelle devise souhaites-tu travailler : CAD, USD ou EUR ?'); return; }
+    var panel = document.createElement('div');
+    panel.id = 'nx-eric-currency-choice';
+    panel.style.cssText = 'padding:14px;margin:12px 0;border:1px solid #C9A24A;border-radius:12px;background:#060A18;color:#fff';
+    var label = document.createElement('p');
+    label.textContent = 'Avant de commencer, dans quelle devise souhaites-tu travailler ?';
+    panel.appendChild(label);
+    [['CAD','Dollar canadien (CAD)'],['USD','Dollar américain (USD)'],['EUR','Euro (EUR)']].forEach(function(entry){
+      var b=document.createElement('button'); b.type='button'; b.textContent=entry[1];
+      b.style.cssText='margin:6px;padding:9px 12px;border:1px solid #C9A24A;border-radius:8px;background:#101A36;color:#fff;cursor:pointer';
+      b.onclick=function(){
+        nxEricCurrency=entry[0];
+        try {localStorage.setItem(nxEricCurrencyKey,nxEricCurrency)} catch(_) {}
+        panel.remove();
+        var pending=nxEricPending; nxEricPending=null;
+        if(pending) sendMessageText(pending.text,pending.fromVoice,pending.options);
+      };
+      panel.appendChild(b);
+    });
+    host.appendChild(panel);
+    panel.scrollIntoView({block:'nearest'});
+  }
   function sendMessageText(text, fromVoice, options) {
+    if (!nxEricCurrency) { nxEricPending={text:text,fromVoice:fromVoice,options:options}; nxEricCurrencyPrompt(); return; }
     if(nxFlowBusy)return
     if (nxLiveSending) return
     nxLiveSending = true
@@ -724,7 +756,7 @@ function nyxiaUserContextText() {
     }
     fetch('/api/chat', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text, history: chatHistories[requestAgent].slice(-10), userName: clientName, agent: requestAgent, attachment: attachmentToSend, token: sessionToken })
+      body: JSON.stringify({ message: text, history: [{role:'system',content:'Devise explicitement choisie par l’étudiant : '+nxEricCurrency+'. Utilise uniquement cette devise pour tous les montants, exemples et tableaux. Ne propose jamais de montants en euros si EUR n’a pas été choisi.'}].concat(chatHistories[requestAgent].slice(-10)), userName: clientName, agent: requestAgent, attachment: attachmentToSend, token: sessionToken })
     })
     .then(function(r){ return r.json() })
     .then(function(data) {

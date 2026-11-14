@@ -549,7 +549,17 @@ var PORTAL_AGENT_META = {"diane":{"key":"diane","name":"Diane","sub":"Créatrice
     // Les boutons HTML du menu Mes Podcasts utilisent cette fonction globale.
     window.openPodcastGuidance = function(section) {
       if (section !== 'nolan' && section !== 'diane') return;
-      openAgentTab(section);
+      // Mes Podcasts est un espace de travail, PAS le chat général.
+      openPodcastSubmenu('podcasts');
+      var frame = document.getElementById('podcasts-iframe');
+      if (!frame) return;
+      var deliver = function() {
+        if (frame.contentWindow) frame.contentWindow.postMessage(
+          {type:'nyxia_podcast_guidance', section:section}, location.origin);
+      };
+      // Attendre le chargement initial de Mes Podcasts si nécessaire.
+      frame.addEventListener('load', deliver, {once:true});
+      if (frame.contentDocument && frame.contentDocument.readyState === 'complete') deliver();
     };
 
     function sendSuggestion(text) {

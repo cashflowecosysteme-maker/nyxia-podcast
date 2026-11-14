@@ -1066,3 +1066,16 @@ window.addEventListener('message',function(e){
     if(e.target.closest('aside')) queueMicrotask(syncNavigation);
   });
 })();
+
+/* Accès aux parcours Nolan et Diane depuis Mes Podcasts. */
+window.openPodcastGuidance=function(section){
+  if(section!=='nolan'&&section!=='diane')return;
+  openPodcastSubmenu('podcasts');
+  var frame=document.getElementById('podcasts-iframe');
+  if(!frame)return;
+  function send(){
+    if(frame.contentWindow)frame.contentWindow.postMessage({type:'nyxia_podcast_guidance',section:section},location.origin);
+  }
+  frame.addEventListener('load',send,{once:true});
+  send();
+};

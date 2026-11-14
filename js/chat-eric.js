@@ -94,8 +94,8 @@ function nyxiaUserContextText() {
       if (!clientName) { nyxiaExpiredSession(); return }
       NYXIA_USER.firstname = clientName
       sessionStorage.setItem('nyxia_firstname', clientName)
-      nxLiveRefresh().then(function(){init();nxFlowInit()})
-    }).catch(function(){ init();nxFlowInit() })
+      nxLiveRefresh().then(function(){init();nxFlowInit();nxEricStartPodcastHandoff()})
+    }).catch(function(){ init();nxFlowInit();nxEricStartPodcastHandoff() })
   })()
 
   var chatHistories = {}; chatHistories[_currentAgent] = []
@@ -709,6 +709,28 @@ function nyxiaUserContextText() {
     if (document.getElementById('btn-send') && document.getElementById('btn-send').disabled) {nxLiveSending=false;return}
     nxLivePendingPhrase=text
     return nxLiveRefresh().then(function(){return nxTryNamedFormation(text,options)}).then(function(handled){nxLiveSending=false;if(!handled)return nxSendMessageTextOriginal(text,fromVoice,options)}).finally(function(){nxLiveSending=false})
+  }
+  // Démarrage automatique de l'outil demandé depuis l'agenda éditorial.
+  // La transmission est créée par agenda-editorial.js; aucune donnée du podcast n'est modifiée ici.
+  function nxEricStartPodcastHandoff() {
+    var raw = null, handoff = null;
+    try { raw = sessionStorage.getItem('nyxia:eric:tool-handoff:v1'); if (raw) handoff = JSON.parse(raw); } catch (_) { return; }
+    if (!handoff || !handoff.tool || !handoff.projectId || !handoff.goal) return;
+    var requested = new URLSearchParams(location.search).get('outil');
+    if (!requested || requested !== handoff.tool) return;
+    // Consommer une seule fois : revenir au chat ne doit pas relancer le même exercice.
+    try { sessionStorage.removeItem('nyxia:eric:tool-handoff:v1'); } catch (_) {}
+    var prompt = 'Nous travaillons sur mon podcast « ' + String(handoff.projectTitle || 'Podcast actif') + ' ».\n'
+      + 'Outil choisi : ' + String(handoff.title || handoff.tool) + '.\n'
+      + String(handoff.goal) + '\n';
+    if (Array.isArray(handoff.context)) {
+      handoff.context.forEach(function(doc) {
+        if (doc && doc.content) prompt += '\nDocument ' + String(doc.type || '') + ' :\n' + String(doc.content).slice(0,2800) + '\n';
+      });
+    }
+    prompt += '\nCommence maintenant l’accompagnement interactif par UNE question pertinente. Ne demande pas de renvoyer les documents déjà fournis.';
+    // Respecte le choix de devise obligatoire avant toute demande financière.
+    sendMessageText(prompt, false, {});
   }
   function nxLiveOffer(host,text) {
     if(nxFlowSelected||nxFlowBusy)return

@@ -5,7 +5,7 @@
  * Auth: callback verify(token) -> {valid,email}, depuis le Worker existant.
  */
 const ROOT='nolan:projects:v1:';
-const DOCUMENTS=new Set(['masterprompt','persona','epoc','brandbook','adn','recit','lancement','episodes','decisions','corrections','notes']);
+const DOCUMENTS=new Set(['masterprompt','persona','epoc','brandbook','adn','episodes','decisions','corrections','notes']);
 const respond=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'private, no-store'}});
 const bad=(message,status=400)=>respond({error:message},status);
 const safeEmail=email=>String(email||'').trim().toLowerCase();

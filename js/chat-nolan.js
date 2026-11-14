@@ -719,7 +719,7 @@ function nyxiaUserContextText() {
     if(typeof sendMessageText!=='function'||!document.getElementById('chat-messages-nolan'))return;
     try{sessionStorage.removeItem('nyxia:nolan:pending-pillar')}catch(e){}
     var current=nxPiliersRead();current.active=data.pillar;nxPiliersWrite(current);
-    sendMessageText('Nolan, je veux travailler mon pilier '+data.pillar+' pour mon podcast '+String(data.projectTitle||'')+'. Utilise les questions originales de ce pilier pour m’accompagner, clarifier mes réponses et construire le document avec moi. Commence par une seule question utile.',false);
+    nxPillarStart(data.pillar);
   }
   window.addEventListener('message',function(e){if(e.origin===location.origin&&e.data&&e.data.type==='nyxia_nolan_pillar_open')setTimeout(nxStartSelectedPillar,300)});
   window.addEventListener('load',function(){setTimeout(nxStartSelectedPillar,650)});
@@ -761,7 +761,94 @@ function nyxiaUserContextText() {
       'Questions de référence du pilier courant (textes originaux, à utiliser selon les besoins, sans les réciter toutes) :\n'+
       q.map(function(x){return x.number+'. '+x.title+' : '+x.question}).join('\n');
   }
+  /* PARCOURS DES QUATRE DOCUMENTS — questions originales, conversation Nolan,
+     sauvegarde automatique dans le document du podcast actif. */
+  var nxPillarSaving=Promise.resolve();
+  function nxPillarSessionKey(){return nxPiliersKey()+':guided-session'}
+  function nxPillarSession(){try{return JSON.parse(localStorage.getItem(nxPillarSessionKey())||'null')}catch(e){return null}}
+  function nxPillarStore(st){try{if(st)localStorage.setItem(nxPillarSessionKey(),JSON.stringify(st));else localStorage.removeItem(nxPillarSessionKey())}catch(e){}}
+  function nxPillarQuestion(st){return NX_CAHIER_QUESTIONS.filter(function(q){return q.document===st.pillar})[st.index]}
+  function nxPillarMessage(text,bot){
+    if(bot)addBotMessage(text);else addUserMessage(text);
+    currentHistory().push({role:bot?'assistant':'user',content:text});saveChatToStorage();
+  }
+  function nxPillarAsk(st){
+    var q=nxPillarQuestion(st);
+    if(q)nxPillarMessage('**'+st.name+' — question '+(st.index+1)+' sur '+st.total+'**\n\n'+q.question+'\n\nTu peux me demander de clarifier la question avant de répondre.',true);
+  }
+  function nxPillarStart(pillar){
+    var p=NX_PILIERS.find(function(x){return x.id===pillar});if(!p)return false;
+    var project=nxActivePodcast();
+    if(!project){nxPillarMessage('Choisis d’abord ton podcast dans « Mes Podcasts » pour que je puisse enregistrer ton document au bon endroit.',true);return true}
+    var existing=nxPillarSession();
+    var q=NX_CAHIER_QUESTIONS.filter(function(x){return x.document===pillar});
+    var st=existing&&existing.pillar===pillar&&existing.project===project?existing:{pillar:pillar,project:project,name:p.name,total:q.length,index:0,answers:{},status:'en_cours'};
+    nxPillarStore(st);
+    nxPillarMessage('Nous travaillons ensemble sur ton **'+p.name+'**. Je vais utiliser les '+q.length+' questions de ton cahier, une à la fois, pour clarifier tes réponses. Elles seront enregistrées dans ton podcast. Tu peux interrompre et reprendre à tout moment.',true);
+    nxPillarAsk(st);return true;
+  }
+  function nxPillarDraft(st){
+    var q=NX_CAHIER_QUESTIONS.filter(function(x){return x.document===st.pillar});
+    return '# '+st.name+' — travail guidé avec Nolan\n\n'+q.map(function(item){return '## '+item.number+'. '+item.title+'\n'+item.question+'\n\n'+(st.answers[item.number]||'À compléter')}).join('\n\n')+'\n\nÉtat : '+(st.status==='termine'?'Réponses recueillies':'En cours')+'.';
+  }
+  function nxPillarSave(st,content){
+    var project=st.project,type=st.pillar;
+    nxPillarSaving=nxPillarSaving.catch(function(){}).then(async function(){
+      var url='/api/nolan/projects/'+encodeURIComponent(project)+'/documents/'+type;
+      var headers={'Authorization':'Bearer '+sessionToken,'Content-Type':'application/json'};
+      var r=await fetch(url,{headers:headers,cache:'no-store'});if(!r.ok)throw Error('Lecture document : '+r.status);
+      var d=await r.json(),old=d.document||{};
+      r=await fetch(url,{method:'PUT',headers:headers,body:JSON.stringify({content:content,status:'brouillon',expectedVersion:old.version||0})});
+      if(!r.ok)throw Error('Enregistrement document : '+r.status);
+      return r.json();
+    });
+    return nxPillarSaving;
+  }
+  async function nxPillarFinish(st){
+    nxPillarMessage('J’ai recueilli les réponses de ce pilier. Je prépare maintenant la synthèse structurée de ton '+st.name+' et je l’enregistre dans « Mes Podcasts ».',true);
+    var draft=nxPillarDraft(st);
+    try{
+      var instructions='Tu es Nolan, formateur podcast. Rédige le document '+st.name+' COMPLET, structuré et exploitable pour cet étudiant à partir EXCLUSIVEMENT des réponses suivantes. Ne fabrique aucune information. Conserve les choix et le vocabulaire de l’étudiant. Si une réponse manque, indique « À préciser ». Pour EPOC, utilise Engagement, Problème & Promesse, Outils & Ouverture, Conversion & Clôture. Pour BrandBook, identité verbale, visuelle et sonore. Retourne UNIQUEMENT le document final.\n\n'+draft;
+      var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:instructions,history:[],userName:clientName,agent:'nolan',projectId:st.project,token:sessionToken})});
+      if(!r.ok)throw Error('Synthèse indisponible : '+r.status);
+      var d=await r.json(),content=String(d.content||'').trim();if(!content)throw Error('Synthèse vide');
+      await nxPillarSave(st,content);
+      nxPillarMessage('Ton **'+st.name+'** est maintenant rédigé et enregistré dans **Mes Podcasts → '+st.name+'**. Tu peux le relire et le modifier.\n\n'+content,true);
+      nxPillarStore(null);
+    }catch(e){
+      try{await nxPillarSave(st,draft);nxPillarMessage('Tes réponses sont enregistrées dans **Mes Podcasts → '+st.name+'**. La synthèse finale n’a pas pu être générée pour le moment. Tu peux me demander « finaliser '+st.name+' » pour réessayer.',true)}
+      catch(saveError){nxPillarMessage('L’enregistrement a échoué ('+saveError.message+'). Tes réponses restent conservées dans ce navigateur. Réessaie après avoir vérifié ta connexion.',true)}
+      st.status='a_finaliser';nxPillarStore(st);
+    }
+  }
+  function nxPillarHandle(text,fromVoice,options){
+    if(options&&(options.forceImage||options.intent==='card-reading'))return false;
+    var msg=String(text||'').trim();if(!msg)return false;
+    var requested=nxPiliersStage(msg);
+    var start=/\b(?:travailler|commencer|construire|créer|reprendre|pilier)\b/i.test(msg)&&!!requested;
+    var st=nxPillarSession();
+    if(start){nxPillarMessage(msg,false);return nxPillarStart(requested)}
+    if(!st||st.project!==nxActivePodcast())return false;
+    if(/^(?:arr[êe]ter|pause|quitter|plus tard|stop)\b/i.test(msg)){
+      nxPillarMessage(msg,false);nxPillarMessage('Ton travail est conservé. Quand tu voudras reprendre, ouvre à nouveau le pilier '+st.name+' dans Mes Podcasts.',true);return nxPillarStore(st),true;
+    }
+    if(st.status==='a_finaliser'&&/finaliser|terminer|synth[èe]se/i.test(msg)){
+      nxPillarMessage(msg,false);nxPillarFinish(st);return true;
+    }
+    // Questions de clarification : la conversation officielle Nolan répond normalement,
+    // sans les enregistrer à tort comme réponses au cahier.
+    if(/\?$/.test(msg)||/^(?:je ne comprends pas|explique|peux-tu expliquer|un exemple|aide-moi|que veux-tu dire)/i.test(msg))return false;
+    var q=nxPillarQuestion(st);if(!q)return false;
+    nxPillarMessage(msg,false);
+    st.answers[q.number]=msg;st.index++;nxPillarStore(st);
+    nxPillarSave(st,nxPillarDraft(st)).then(function(){
+      if(st.index<st.total)nxPillarAsk(st);
+      else{st.status='termine';nxPillarStore(st);nxPillarFinish(st)}
+    }).catch(function(e){nxPillarMessage('Impossible d’enregistrer pour le moment ('+e.message+'). Ta réponse est conservée dans ce navigateur. Vérifie ta connexion avant de continuer.',true)});
+    return true;
+  }
   function sendMessageText(text, fromVoice, options) {
+    if(nxPillarHandle(text,fromVoice,options))return
     if(nxFlowBusy)return
     if (nxLiveSending) return
     nxLiveSending = true

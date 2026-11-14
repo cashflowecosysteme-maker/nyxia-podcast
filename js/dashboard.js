@@ -544,6 +544,14 @@ var PORTAL_AGENT_META = {"diane":{"key":"diane","name":"Diane","sub":"Créatrice
       closeMobileMenu()
     }
 
+
+    // Exposer la navigation depuis la portée où openAgentTab existe réellement.
+    // Les boutons HTML du menu Mes Podcasts utilisent cette fonction globale.
+    window.openPodcastGuidance = function(section) {
+      if (section !== 'nolan' && section !== 'diane') return;
+      openAgentTab(section);
+    };
+
     function sendSuggestion(text) {
       document.getElementById('suggestions').style.display = 'none'
       sendMessageText(text)
@@ -1067,10 +1075,3 @@ window.addEventListener('message',function(e){
   });
 })();
 
-/* Accès aux parcours Nolan et Diane depuis Mes Podcasts. */
-window.openPodcastGuidance=function(section){
-  if(section!=='nolan'&&section!=='diane')return;
-  // Ouvrir directement le personnage dans le chat natif du Dashboard.
-  // Ne modifie ni le podcast actif ni les documents enregistrés.
-  openAgentTab(section);
-};

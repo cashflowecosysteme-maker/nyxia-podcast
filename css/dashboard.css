@@ -265,3 +265,18 @@
       .suggestions { padding: 0 16px 12px; }
     }
   
+/* NyXia — barres de défilement du Dashboard, côté droit inclus. */
+html, body, .app-body, .main-content, .main-content *, .panel, .chat-messages {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(123, 92, 255, .35) transparent;
+}
+html::-webkit-scrollbar, body::-webkit-scrollbar, .app-body::-webkit-scrollbar,
+.main-content::-webkit-scrollbar, .main-content *::-webkit-scrollbar { width: 6px; height: 6px; }
+html::-webkit-scrollbar-track, body::-webkit-scrollbar-track, .app-body::-webkit-scrollbar-track,
+.main-content::-webkit-scrollbar-track, .main-content *::-webkit-scrollbar-track { background: transparent; }
+html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb, .app-body::-webkit-scrollbar-thumb,
+.main-content::-webkit-scrollbar-thumb, .main-content *::-webkit-scrollbar-thumb {
+  background: rgba(123, 92, 255, .35); border-radius: 10px;
+}
+html::-webkit-scrollbar-thumb:hover, body::-webkit-scrollbar-thumb:hover,
+.main-content *::-webkit-scrollbar-thumb:hover { background: rgba(123, 92, 255, .6); }

@@ -79,7 +79,7 @@ function nyxiaUserContextText() {
   }
   var AGENT_IMAGES = {}; AGENT_IMAGES[_currentAgent] = "https://d1yei2z3i6k35z.cloudfront.net/1872133/6af609e6130363.54967709_Nolan_base.png"
   var AGENT_WELCOME_AUDIO = {}
-  var AGENT_WELCOME_VIDEO = {}; AGENT_WELCOME_VIDEO[_currentAgent] = ""
+  var AGENT_WELCOME_VIDEO = {}; AGENT_WELCOME_VIDEO[_currentAgent] = 'https://d1yei2z3i6k35z.cloudfront.net/1872133/6af7af75b59fa7.01956279_Nolan_Pr%C3%A9sentation.mp4' // Présentation de Nolan
 
   /* ═══════ AUTH ═══════ */
   var sessionToken = sessionStorage.getItem('nyxia_token') || ''
@@ -658,7 +658,7 @@ function nyxiaUserContextText() {
       .then(function(data){var p=data.profile;if(!p)return null;nxLiveProfile=p
         if(typeof ALPHA_INFO!=='undefined'&&ALPHA_INFO[_currentAgent])Object.assign(ALPHA_INFO[_currentAgent],p)
         if(typeof AGENT_IMAGES!=='undefined'&&Object.prototype.hasOwnProperty.call(p,'image'))AGENT_IMAGES[_currentAgent]=p.image
-        if(typeof AGENT_WELCOME_VIDEO!=='undefined'&&Object.prototype.hasOwnProperty.call(p,'welcomeVideo'))AGENT_WELCOME_VIDEO[_currentAgent]=p.welcomeVideo
+        if(typeof AGENT_WELCOME_VIDEO!=='undefined'&&Object.prototype.hasOwnProperty.call(p,'welcomeVideo'))AGENT_WELCOME_VIDEO[_currentAgent]=p.welcomeVideo || 'https://d1yei2z3i6k35z.cloudfront.net/1872133/6af7af75b59fa7.01956279_Nolan_Pr%C3%A9sentation.mp4'
         if(typeof AGENT_SUGGESTIONS!=='undefined'&&Array.isArray(p.suggestions))AGENT_SUGGESTIONS[_currentAgent]=p.suggestions
         if(typeof PORTAL_AGENT!=='undefined')PORTAL_AGENT=Object.assign({},PORTAL_AGENT||{},p)
         var name=document.getElementById('chat-header-name'),sub=document.getElementById('chat-header-sub')

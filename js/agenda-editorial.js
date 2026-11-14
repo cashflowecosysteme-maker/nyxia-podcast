@@ -28,7 +28,7 @@ function csv(){const fields=['date','title','kind','status','platforms','episode
 async function startTool(key){
  if(!projectId){aiStatus('Sélectionne d’abord un podcast.');return}
  const p=projects.find(x=>x.id===projectId);
- aiStatus('Préparation du contexte pour le véritable Chat Éric…');
+ aiStatus('Préparation de ton espace de travail…');
  try{
   const context=await Promise.all(['persona','brandbook','epoc'].map(async t=>{
    try{const d=await api('/api/nolan/projects/'+encodeURIComponent(projectId)+'/documents/'+t);return {type:t,content:String(d.document?.content||'').slice(0,2800)}}
@@ -54,7 +54,7 @@ window.showEricToolFromDashboard=function(key){
 for(const [key,v] of Object.entries(types)){
  const b=document.createElement('button');b.className='tool';b.type='button';b.dataset.ericTool=key;
  const strong=document.createElement('strong');strong.textContent=v[0];
- b.append(strong,document.createTextNode('Créer avec Éric dans son vrai chat'));
+ b.append(strong,document.createTextNode('Découvrir cet outil avec Éric'));
  b.onclick=()=>startTool(key);$('tools').append(b)
 }
 for(const pl of platforms){const label=document.createElement('label');label.className='check';const cb=document.createElement('input');cb.type='checkbox';cb.value=pl;cb.dataset.platform='1';label.append(cb,document.createTextNode(pl));$('platforms').append(label)}

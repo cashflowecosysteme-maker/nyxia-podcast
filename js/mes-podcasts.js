@@ -10,4 +10,26 @@ $('guided-nolan').onclick=goNolan;
 $('toggle-manual-editor').onclick=()=>{let el=$('manual-documents');el.classList.toggle('hidden');$('toggle-manual-editor').setAttribute('aria-expanded',String(!el.classList.contains('hidden')));$('toggle-manual-editor').textContent=el.classList.contains('hidden')?'Afficher l\'éditeur de documents':'Masquer l\'éditeur de documents'};
 document.querySelectorAll('[data-guide-doc]').forEach(b=>b.onclick=async()=>{if(!active||!safeChange())return;let t=b.dataset.guideDoc;if(['masterprompt','persona','epoc','brandbook'].includes(t)){openNolanPillar(t);return;}$('doc-type').value=t;$('manual-documents').classList.remove('hidden');$('toggle-manual-editor').setAttribute('aria-expanded','true');$('toggle-manual-editor').textContent='Masquer l\'éditeur de documents';await loadDoc();$('manual-documents').scrollIntoView({behavior:'smooth',block:'start'})});
 async function refreshGuide(){if(!active)return;let id=active.id;await Promise.all(['masterprompt','persona','epoc','brandbook'].map(async t=>{try{let d=await request('/'+id+'/documents/'+t);if(active?.id!==id)return;let doc=d.document||{};let s=$('guide-status-'+t);if(s)s.textContent=(doc.content||'').trim()?(doc.status==='valide'?'✓ Validé':'En cours · version '+(doc.version||1)):'À préparer'}catch(_){let s=$('guide-status-'+t);if(s)s.textContent='Non disponible'}}))}
-$('nolan').onclick=()=>{if(!safeChange())return;if(parent!==window)parent.postMessage({type:'nyxia_nolan_open'},location.origin);else location.href='/chat-nolan.html'};window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});list()})();
+$('nolan').onclick=()=>{if(!safeChange())return;if(parent!==window)parent.postMessage({type:'nyxia_nolan_open'},location.origin);else location.href='/chat-nolan.html'};window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});let guidanceRequested=false;
+function showNolanGuidance(){
+  guidanceRequested=true;
+  if(active){
+    const guide=$('guided-workspace');
+    guide.classList.remove('hidden');
+    guide.scrollIntoView({behavior:'auto',block:'start'});
+    const title=$('guided-title');
+    if(title){title.setAttribute('tabindex','-1');title.focus({preventScroll:true})}
+  }else{
+    const projects=$('projects');
+    if(projects)projects.scrollIntoView({behavior:'auto',block:'start'});
+  }
+}
+window.addEventListener('message',function(event){
+  if(event.origin!==location.origin||event.source!==parent)return;
+  if(event.data&&event.data.type==='nyxia_podcast_guidance'&&event.data.section==='nolan'){
+    showNolanGuidance();
+  }
+});
+const oldSelect=select;
+select=async function(id){await oldSelect(id);if(guidanceRequested&&active)showNolanGuidance()};
+list()})();

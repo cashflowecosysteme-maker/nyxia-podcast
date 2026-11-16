@@ -33,9 +33,9 @@
   var change=$('change-form');
   if(change){
     var token=sessionStorage.getItem('nyxia_token')||'';
-    if(!token){location.href='/login';return}
-    fetch('/api/check-auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:token})})
-      .then(response).then(function(x){if(!x.ok||!x.data.valid)location.href='/login'}).catch(function(){location.href='/login'});
+    // Le Worker protège déjà cette page avec le cookie de session HttpOnly.
+    // Ne pas rediriger quand sessionStorage ne contient pas de jeton.
+    // L'API de changement de mot de passe valide le jeton ou le cookie serveur.
     change.addEventListener('submit',function(e){
       e.preventDefault();var password=$('change-password').value,confirm=$('change-confirm').value;
       if(password!==confirm){message('change-msg','Les deux nouveaux mots de passe ne correspondent pas.',false);return}
